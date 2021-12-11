@@ -1,0 +1,24 @@
+{
+  "name": "connectr",
+  "version": "1.0.0",
+  "description": "connectr my social peers",
+  "main": "",
+  "scripts": {
+    "start:backend": "cd backend && yarn run dev",
+    "start:frontend": "cd frontend && yarn start",
+    "dev:frontend": "npm-run-all --parallel start:frontend start:root",
+    "holoInstall": "yarn install && yarn install:backend && yarn install:frontend",
+    "dev": "npm-run-all --parallel start:backend dev:frontend",
+    "clean": "rimraf dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spykelion/connectr.git"
+  },
+  "keywords": [],
+  "author": "Lionel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zurichat/zc_plugin_deadlines/issues"
+  }
+}
