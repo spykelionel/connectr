@@ -24,6 +24,7 @@ import { CloudinaryService } from './cloudinary.service';
 import {
   BulkUploadResponseDto,
   DeleteResponseDto,
+  SimpleUploadDto,
   UploadFileDto,
   UploadResponseDto,
 } from './dto';
@@ -38,6 +39,50 @@ import {
 @Controller('upload')
 export class UploadController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
+
+  @Post('simple')
+  @ApiOperation({ summary: 'Simple file upload with optional path' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 201,
+    description: 'File uploaded successfully.',
+    schema: {
+      example: {
+        public_id: 'uploads/simple_file',
+        secure_url:
+          'https://res.cloudinary.com/your-cloud/image/upload/v1234567890/uploads/simple_file.jpg',
+        format: 'jpg',
+        bytes: 245760,
+        width: 800,
+        height: 600,
+        created_at: '2024-01-01T00:00:00.000Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid file.',
+  })
+  @ApiResponse({
+    status: 413,
+    description: 'Payload Too Large - File size exceeds limit.',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @UsePipes(new FileValidationPipe())
+  async uploadSimpleFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() uploadDto: SimpleUploadDto,
+  ) {
+    // Direct upload without DTO validation
+    const uploadOptions = {
+      resource_type: 'auto',
+      folder: uploadDto.path || 'uploads',
+    };
+
+    return this.cloudinaryService.uploadFileDirect(file, uploadOptions);
+  }
 
   @Post('single')
   @ApiOperation({ summary: 'Upload a single file to Cloudinary' })

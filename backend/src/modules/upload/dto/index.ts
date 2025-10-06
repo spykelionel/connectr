@@ -3,6 +3,7 @@ export {
   DeleteFileDto,
   DeleteResponseDto,
   ImageFormat,
+  SimpleUploadDto,
   UploadFileDto,
   UploadResponseDto,
   UploadType,

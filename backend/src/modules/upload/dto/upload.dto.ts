@@ -185,3 +185,21 @@ export class DeleteResponseDto {
   })
   message: string;
 }
+
+export class SimpleUploadDto {
+  @ApiProperty({
+    description: 'File to upload',
+    type: 'string',
+    format: 'binary',
+  })
+  file: any;
+
+  @ApiProperty({
+    description: 'Optional folder path for the uploaded file',
+    example: 'my-folder',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  path?: string;
+}

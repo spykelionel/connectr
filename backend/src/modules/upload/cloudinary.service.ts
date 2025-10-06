@@ -60,6 +60,34 @@ export class CloudinaryService {
     }
   }
 
+  async uploadFileDirect(file: Express.Multer.File, uploadOptions: any) {
+    try {
+      this.validateFile(file);
+
+      this.logger.log(`Uploading file: ${file.originalname} to Cloudinary`);
+
+      const result = await cloudinary.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+        uploadOptions,
+      );
+
+      return {
+        public_id: result.public_id,
+        secure_url: result.secure_url,
+        format: result.format,
+        bytes: result.bytes,
+        width: result.width,
+        height: result.height,
+        created_at: result.created_at,
+      };
+    } catch (error) {
+      this.logger.error(`Upload failed for file: ${file.originalname}`, error);
+      throw new InternalServerErrorException(
+        `Failed to upload file: ${error.message}`,
+      );
+    }
+  }
+
   async uploadFromUrl(
     imageUrl: string,
     uploadDto: UploadFileDto,
