@@ -93,3 +93,4 @@ The application features a custom cosmic theme with:
 ## License
 
 MIT License - see LICENSE file for details
+
