@@ -37,6 +37,10 @@ async function bootstrap() {
     )
     .addTag('Networks', 'Network creation, management, and member endpoints')
     .addTag('Roles', 'Role management endpoints')
+    .addTag(
+      'Connections',
+      'Friend connection and relationship management endpoints',
+    )
     .build();
   SwaggerModule.setup(
     '/swagger',
