@@ -41,6 +41,7 @@ async function bootstrap() {
       'Connections',
       'Friend connection and relationship management endpoints',
     )
+    .addTag('File Upload', 'Cloudinary file upload and management endpoints')
     .build();
   SwaggerModule.setup(
     '/swagger',

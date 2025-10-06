@@ -7,6 +7,7 @@ import { ConnectionModule } from './modules/connection/connection.module';
 import { NetworkModule } from './modules/network/network.module';
 import { PostModule } from './modules/post/post.module';
 import { RoleModule } from './modules/role/role.module';
+import { UploadModule } from './modules/upload/upload.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -19,6 +20,7 @@ import { PrismaModule } from './prisma/prisma.module';
     NetworkModule,
     RoleModule,
     ConnectionModule,
+    UploadModule,
     PrismaModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
