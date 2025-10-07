@@ -2,9 +2,20 @@ import CreateNetworkModal from "@/components/networks/CreateNetworkModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGetNetworksQuery } from "@/services/api";
+import { RootState } from "@/store";
 import { motion } from "framer-motion";
-import { Globe, Plus, Search, Sparkles, TrendingUp, Users } from "lucide-react";
+import {
+  Crown,
+  Globe,
+  Plus,
+  Search,
+  Sparkles,
+  UserCheck,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const categories = [
   "All Networks",
@@ -21,6 +32,7 @@ const NetworksPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Networks");
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const {
     data: networks = [],
@@ -29,14 +41,25 @@ const NetworksPage = () => {
     refetch,
   } = useGetNetworksQuery();
 
+  // Helper function to check if user is admin/creator of network
+  const isUserAdmin = (network: any) => {
+    return network.administrations?.some(
+      (admin: any) => admin.userId === user?.id
+    );
+  };
+
+  // Helper function to check if user is member of network
+  const isUserMember = (network: any) => {
+    return network.memberships?.some(
+      (member: any) => member.userId === user?.id
+    );
+  };
+
   const filteredNetworks = networks.filter((network) => {
-    const matchesCategory =
-      selectedCategory === "All Networks" ||
-      network.category === selectedCategory;
     const matchesSearch = network.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesSearch;
   });
 
   return (
@@ -127,12 +150,6 @@ const NetworksPage = () => {
                     <div className="w-full h-full flex items-center justify-center">
                       <Globe className="h-16 w-16 text-white/40" />
                     </div>
-                    {network.trending && (
-                      <div className="absolute top-3 right-3 bg-blue-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
-                        <TrendingUp className="h-3 w-3" />
-                        Trending
-                      </div>
-                    )}
                   </div>
 
                   {/* Network Info */}
@@ -154,9 +171,29 @@ const NetworksPage = () => {
                         <span>{network.memberships?.length || 0} members</span>
                       </div>
 
-                      <Button className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
-                        Join
-                      </Button>
+                      {/* Dynamic button based on user status */}
+                      {isUserAdmin(network) ? (
+                        <Button
+                          variant="outline"
+                          className="px-4 py-1.5 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10 transition-colors flex items-center gap-1"
+                        >
+                          <Crown className="h-3 w-3" />
+                          Admin
+                        </Button>
+                      ) : isUserMember(network) ? (
+                        <Button
+                          variant="outline"
+                          className="px-4 py-1.5 border-green-500/50 text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-1"
+                        >
+                          <UserCheck className="h-3 w-3" />
+                          Joined
+                        </Button>
+                      ) : (
+                        <Button className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-1">
+                          <UserPlus className="h-3 w-3" />
+                          Join
+                        </Button>
+                      )}
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-white/10">

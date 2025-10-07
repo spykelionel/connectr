@@ -9,20 +9,23 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Globe,
   Heart,
+  Image as ImageIcon,
+  Loader2,
   MessageCircle,
   MoreHorizontal,
+  Plus,
   Send,
   Share2,
   ThumbsDown,
   UserPlus,
   Users,
+  Video,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
   useCreateCommentMutation,
   useGetPostsQuery,
-  useGetUsersQuery,
   useReactToPostMutation,
 } from "../services/api";
 import { RootState } from "../store";
@@ -33,21 +36,8 @@ const DashboardPage = () => {
   const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
 
   const { data: posts = [], isLoading } = useGetPostsQuery();
-  const {
-    data: allUsers,
-    isLoading: isLoadingUsers,
-    error: usersError,
-  } = useGetUsersQuery();
   const [reactToPost] = useReactToPostMutation();
   const [createComment] = useCreateCommentMutation();
-
-  // Get suggested users (excluding current user and limit to 3)
-  const suggestedUsers = React.useMemo(() => {
-    if (!allUsers || !Array.isArray(allUsers)) {
-      return [];
-    }
-    return allUsers.filter((u) => u.id !== user?.id).slice(0, 3);
-  }, [allUsers, user?.id]);
 
   const handleReactToPost = async (
     postId: string,
@@ -256,7 +246,11 @@ const DashboardPage = () => {
       {/* Feed */}
       <div className="space-y-6">
         {/* Post Composer */}
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-lg border border-white/10 bg-white/5 p-4 hover:border-white/20 transition-all duration-300"
+        >
           <div className="flex gap-3">
             <Avatar>
               <AvatarImage src={user?.profileurl} />
@@ -264,22 +258,91 @@ const DashboardPage = () => {
                 {getInitials(user?.name || "U")}
               </AvatarFallback>
             </Avatar>
-            <Button
-              className="flex-1 justify-start text-left text-white/40 hover:bg-white/5"
-              onClick={() => setShowCreatePostModal(true)}
-            >
-              What's on your mind?
-            </Button>
+            <div className="flex-1">
+              <Button
+                className="w-full justify-start text-left text-white/40 hover:bg-white/5 hover:text-white/60 transition-all duration-200 h-12"
+                onClick={() => setShowCreatePostModal(true)}
+              >
+                What's on your mind?
+              </Button>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1 text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                  onClick={() => setShowCreatePostModal(true)}
+                >
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Photo
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1 text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                  onClick={() => setShowCreatePostModal(true)}
+                >
+                  <Video className="h-4 w-4 mr-2" />
+                  Video
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1 text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                  onClick={() => setShowCreatePostModal(true)}
+                >
+                  <Globe className="h-4 w-4 mr-2" />
+                  Event
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Posts Feed */}
         {isLoading ? (
-          <div className="text-center py-12">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500 mb-4" />
             <div className="text-white/60">Loading posts...</div>
-          </div>
+          </motion.div>
+        ) : posts.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
+          >
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+              <Plus className="h-8 w-8 text-white/40" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">
+              No posts yet
+            </h3>
+            <p className="text-white/60 mb-4">
+              Be the first to share something!
+            </p>
+            <Button
+              onClick={() => setShowCreatePostModal(true)}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              Create Post
+            </Button>
+          </motion.div>
         ) : (
-          posts.map((post) => <PostCard key={post.id} post={post} />)
+          <div className="space-y-6">
+            {posts.map((post, index) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <PostCard post={post} />
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
 

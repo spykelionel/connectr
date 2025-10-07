@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getInitials } from "@/lib/utils";
 import {
-  useCreateConnectionMutation,
   useGetConnectionsQuery,
   useGetFriendsQuery,
   useGetPendingConnectionsQuery,
@@ -12,10 +11,13 @@ import {
 } from "@/services/api";
 import { motion } from "framer-motion";
 import {
+  Clock,
+  Loader2,
   MessageCircle,
   MoreHorizontal,
   Search,
   UserCheck,
+  UserMinus,
   UserPlus,
   UserX,
   Users,
@@ -30,14 +32,13 @@ const ConnectionsPage = () => {
   const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
 
   const { data: allConnections = [], isLoading: isLoadingAll } =
-    useGetConnectionsQuery();
+    useGetConnectionsQuery(undefined);
   const { data: friends = [], isLoading: isLoadingFriends } =
     useGetFriendsQuery();
   const { data: pendingConnections = [], isLoading: isLoadingPending } =
     useGetPendingConnectionsQuery();
 
   const [updateConnectionStatus] = useUpdateConnectionStatusMutation();
-  const [createConnection] = useCreateConnectionMutation();
 
   const getCurrentConnections = () => {
     switch (activeTab) {
@@ -151,9 +152,45 @@ const ConnectionsPage = () => {
 
         {/* Connections Grid */}
         {isLoading ? (
-          <div className="text-center py-12">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500 mb-4" />
             <div className="text-white/60">Loading connections...</div>
-          </div>
+          </motion.div>
+        ) : filteredConnections.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
+          >
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+              <Users className="h-8 w-8 text-white/40" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">
+              {activeTab === "pending"
+                ? "No pending requests"
+                : activeTab === "friends"
+                ? "No friends yet"
+                : "No connections found"}
+            </h3>
+            <p className="text-white/60 mb-4">
+              {activeTab === "pending"
+                ? "All connection requests have been handled"
+                : activeTab === "friends"
+                ? "Start building your network by connecting with people"
+                : "Try adjusting your search or connect with new people"}
+            </p>
+            <Button
+              onClick={() => setShowFindPeopleModal(true)}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Find People
+            </Button>
+          </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredConnections.map((connection, index) => (
@@ -190,10 +227,25 @@ const ConnectionsPage = () => {
                   </Button>
                 </div>
 
-                {/* Status */}
-                <p className="text-sm text-white/60 mb-4">
-                  Status: {connection.status}
-                </p>
+                {/* Status Badge */}
+                <div className="mb-4">
+                  {connection.status === "accepted" ? (
+                    <div className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
+                      <UserCheck className="h-3 w-3" />
+                      Connected
+                    </div>
+                  ) : connection.status === "pending" ? (
+                    <div className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-medium">
+                      <Clock className="h-3 w-3" />
+                      Pending
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 rounded-full text-xs font-medium">
+                      <UserMinus className="h-3 w-3" />
+                      {connection.status}
+                    </div>
+                  )}
+                </div>
 
                 {/* Actions */}
                 <div className="flex gap-2">
@@ -213,7 +265,7 @@ const ConnectionsPage = () => {
                   ) : connection.status === "pending" ? (
                     <>
                       <Button
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
                         onClick={() => handleAcceptConnection(connection.id)}
                       >
                         <UserCheck className="h-4 w-4" />
@@ -221,7 +273,7 @@ const ConnectionsPage = () => {
                       </Button>
                       <Button
                         variant="outline"
-                        className="px-3 py-2 bg-white/5 text-white border-white/10 rounded-lg text-sm font-medium hover:bg-white/10 transition-colors"
+                        className="px-3 py-2 bg-red-500/20 text-red-400 border-red-500/30 rounded-lg text-sm font-medium hover:bg-red-500/30 transition-colors"
                         onClick={() => handleRejectConnection(connection.id)}
                       >
                         <UserX className="h-4 w-4" />
@@ -238,18 +290,6 @@ const ConnectionsPage = () => {
                 </div>
               </motion.div>
             ))}
-          </div>
-        )}
-
-        {filteredConnections.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <Users className="h-12 w-12 text-white/60 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">
-              No connections found
-            </h3>
-            <p className="text-sm text-white/60">
-              Try adjusting your search query
-            </p>
           </div>
         )}
       </div>
