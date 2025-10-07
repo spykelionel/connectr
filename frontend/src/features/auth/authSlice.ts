@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
-  token: string | null;
-  refreshToken: string | null;
+  access_token: string | null;
+  refresh_token: string | null;
   user: {
     id: string;
     name: string;
@@ -16,12 +16,12 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  token: localStorage.getItem("token"),
-  refreshToken: localStorage.getItem("refreshToken"),
+  access_token: localStorage.getItem("access_token"),
+  refresh_token: localStorage.getItem("refresh_token"),
   user: localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user")!)
     : null,
-  isAuthenticated: !!localStorage.getItem("token"),
+  isAuthenticated: !!localStorage.getItem("access_token"),
   isLoading: false,
   error: null,
 };
@@ -36,19 +36,23 @@ const authSlice = createSlice({
     },
     loginSuccess: (
       state,
-      action: PayloadAction<{ token: string; refreshToken?: string; user: any }>
+      action: PayloadAction<{
+        access_token: string;
+        refresh_token?: string;
+        user: any;
+      }>
     ) => {
       state.isLoading = false;
       state.isAuthenticated = true;
-      state.token = action.payload.token;
-      state.refreshToken = action.payload.refreshToken || state.refreshToken;
+      state.access_token = action.payload.access_token;
+      state.refresh_token = action.payload.refresh_token || state.refresh_token;
       state.user = action.payload.user;
       state.error = null;
 
       // Persist to localStorage
-      localStorage.setItem("token", action.payload.token);
-      if (action.payload.refreshToken) {
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
+      localStorage.setItem("access_token", action.payload.access_token);
+      if (action.payload.refresh_token) {
+        localStorage.setItem("refresh_token", action.payload.refresh_token);
       }
       localStorage.setItem("user", JSON.stringify(action.payload.user));
     },
@@ -59,14 +63,14 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.isAuthenticated = false;
-      state.token = null;
-      state.refreshToken = null;
+      state.access_token = null;
+      state.refresh_token = null;
       state.user = null;
       state.error = null;
 
       // Clear localStorage
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
     },
     clearError: (state) => {
