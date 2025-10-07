@@ -13,12 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spykelion/connectr.git"
+    "url": "git+https://github.com/spykelionel/connectr.git"
   },
   "keywords": [],
   "author": "Lionel",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zurichat/zc_plugin_deadlines/issues"
+    "url": "https://github.com/spykelionel/connectr.git/issues"
   }
 }

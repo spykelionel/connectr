@@ -1,2 +1,1 @@
-# connectr
-an api to interract with social users
+A sociapi for my clients
