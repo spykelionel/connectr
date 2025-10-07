@@ -177,7 +177,7 @@ const SettingsPage = () => {
                         ) : (
                           <Input
                             type={item.type}
-                            value={item.value}
+                            value={String(item.value)}
                             className="bg-white/10 border-white/20 text-white"
                             onChange={() => {
                               // TODO: Implement input change

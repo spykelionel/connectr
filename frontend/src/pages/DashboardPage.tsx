@@ -21,7 +21,7 @@ import {
   Video,
 } from "lucide-react";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   useCreatePostMutation,
   useGetPostsQuery,
@@ -30,7 +30,6 @@ import {
 import { RootState } from "../store";
 
 const DashboardPage = () => {
-  const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const [newPost, setNewPost] = useState("");
   const [showCreatePost, setShowCreatePost] = useState(false);

@@ -25,7 +25,9 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated: _isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
   const { theme } = useSelector((state: RootState) => state.ui);
 
   useEffect(() => {

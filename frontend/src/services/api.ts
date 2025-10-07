@@ -216,7 +216,7 @@ export const api = createApi({
     }),
     getUser: builder.query<User, string>({
       query: (id) => `user/${id}`,
-      providesTags: (result, error, id) => [{ type: "User", id }],
+      providesTags: (_result, _error, id) => [{ type: "User", id }],
     }),
     updateUser: builder.mutation<User, { id: string; data: Partial<User> }>({
       query: ({ id, data }) => ({
@@ -224,7 +224,7 @@ export const api = createApi({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "User", id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "User", id }],
     }),
 
     // Post endpoints
@@ -234,7 +234,7 @@ export const api = createApi({
     }),
     getPost: builder.query<Post, string>({
       query: (id) => `post/${id}`,
-      providesTags: (result, error, id) => [{ type: "Post", id }],
+      providesTags: (_result, _error, id) => [{ type: "Post", id }],
     }),
     getUserPosts: builder.query<Post[], string>({
       query: (userId) => `post/user/${userId}`,
@@ -258,7 +258,7 @@ export const api = createApi({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Post", id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Post", id }],
     }),
     deletePost: builder.mutation<{ message: string }, string>({
       query: (id) => ({
@@ -276,7 +276,7 @@ export const api = createApi({
         method: "POST",
         body: { reactionType },
       }),
-      invalidatesTags: (result, error, { postId }) => [
+      invalidatesTags: (_result, _error, { postId }) => [
         { type: "Post", id: postId },
       ],
     }),
@@ -288,7 +288,7 @@ export const api = createApi({
     }),
     getNetwork: builder.query<Network, string>({
       query: (id) => `network/${id}`,
-      providesTags: (result, error, id) => [{ type: "Network", id }],
+      providesTags: (_result, _error, id) => [{ type: "Network", id }],
     }),
     getUserNetworks: builder.query<Network[], string>({
       query: (userId) => `network/user/${userId}`,
@@ -311,7 +311,7 @@ export const api = createApi({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Network", id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Network", id }],
     }),
     deleteNetwork: builder.mutation<{ message: string }, string>({
       query: (id) => ({
@@ -329,7 +329,7 @@ export const api = createApi({
         method: "POST",
         body: { userId },
       }),
-      invalidatesTags: (result, error, { networkId }) => [
+      invalidatesTags: (_result, _error, { networkId }) => [
         { type: "Network", id: networkId },
       ],
     }),
@@ -342,7 +342,7 @@ export const api = createApi({
         method: "DELETE",
         body: { userId },
       }),
-      invalidatesTags: (result, error, { networkId }) => [
+      invalidatesTags: (_result, _error, { networkId }) => [
         { type: "Network", id: networkId },
       ],
     }),
@@ -362,7 +362,7 @@ export const api = createApi({
     }),
     getConnection: builder.query<Connection, string>({
       query: (id) => `connection/${id}`,
-      providesTags: (result, error, id) => [{ type: "Connection", id }],
+      providesTags: (_result, _error, id) => [{ type: "Connection", id }],
     }),
     createConnection: builder.mutation<Connection, CreateConnectionRequest>({
       query: (connectionData) => ({
@@ -381,7 +381,9 @@ export const api = createApi({
         method: "PATCH",
         body: { status },
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Connection", id }],
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "Connection", id },
+      ],
     }),
     removeConnection: builder.mutation<{ message: string }, string>({
       query: (id) => ({
