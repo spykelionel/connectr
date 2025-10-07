@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  Options,
   Param,
   Post,
   UploadedFile,
@@ -40,6 +41,12 @@ import {
 @Controller('upload')
 export class UploadController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
+
+  @Options('simple')
+  async handleSimpleUploadOptions() {
+    // Handle CORS preflight for simple upload
+    return { message: 'OK' };
+  }
 
   @Post('simple')
   @ApiOperation({ summary: 'Simple file upload with optional path' })

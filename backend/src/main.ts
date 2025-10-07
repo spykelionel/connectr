@@ -20,6 +20,8 @@ async function bootstrap() {
         'Pragma',
       ],
       credentials: true, // Allow credentials for authentication
+      preflightContinue: false, // Let NestJS handle preflight
+      optionsSuccessStatus: 200, // Some legacy browsers choke on 204
     },
     logger: ['error', 'warn', 'log'],
     bodyParser: false, // Disable default body parser to configure manually
