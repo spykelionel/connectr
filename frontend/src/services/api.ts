@@ -261,10 +261,22 @@ export const api = createApi({
     getUserPosts: builder.query<Post[], string>({
       query: (userId) => `post/user/${userId}`,
       providesTags: ["Post"],
+      transformResponse: (response: any) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     getNetworkPosts: builder.query<Post[], string>({
       query: (networkId) => `post/network/${networkId}`,
       providesTags: ["Post"],
+      transformResponse: (response: any) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     createPost: builder.mutation<Post, CreatePostRequest>({
       query: (postData) => ({
@@ -307,6 +319,12 @@ export const api = createApi({
     getNetworks: builder.query<Network[], void>({
       query: () => "network",
       providesTags: ["Network"],
+      transformResponse: (response: any) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     getNetwork: builder.query<Network, string>({
       query: (id) => `network/${id}`,
@@ -315,6 +333,12 @@ export const api = createApi({
     getUserNetworks: builder.query<Network[], string>({
       query: (userId) => `network/user/${userId}`,
       providesTags: ["Network"],
+      transformResponse: (response: any) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     createNetwork: builder.mutation<Network, CreateNetworkRequest>({
       query: (networkData) => ({
@@ -373,14 +397,32 @@ export const api = createApi({
     getConnections: builder.query<Connection[], string | undefined>({
       query: (status) => `connection${status ? `?status=${status}` : ""}`,
       providesTags: ["Connection"],
+      transformResponse: (response: any) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     getFriends: builder.query<Connection[], void>({
       query: () => "connection/friends",
       providesTags: ["Connection"],
+      transformResponse: (response: any) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     getPendingConnections: builder.query<Connection[], void>({
       query: () => "connection/pending",
       providesTags: ["Connection"],
+      transformResponse: (response: any) => {
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     getConnection: builder.query<Connection, string>({
       query: (id) => `connection/${id}`,
