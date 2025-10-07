@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -16,6 +17,7 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -87,6 +89,56 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   findAll() {
     return this.userService.findAll();
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Search users by name or email' })
+  @ApiQuery({
+    name: 'q',
+    description: 'Search query (minimum 2 characters)',
+    example: 'john',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Users successfully found.',
+    schema: {
+      example: [
+        {
+          id: 'abc123',
+          name: 'John Doe',
+          email: 'john@example.com',
+          gender: 'male',
+          contact: '+1234567890',
+          profileurl: 'https://example.com/profile.jpg',
+          isAdmin: false,
+          roleId: 'role123',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          id: 'def456',
+          name: 'Johnny Smith',
+          email: 'johnny@example.com',
+          gender: 'male',
+          contact: '+1234567891',
+          profileurl: 'https://example.com/profile2.jpg',
+          isAdmin: false,
+          roleId: 'role123',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Search query too short (minimum 2 characters required).',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  searchUsers(@Query('q') query: string) {
+    return this.userService.searchUsers(query);
   }
 
   @Get(':id')
