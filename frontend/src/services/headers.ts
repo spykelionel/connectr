@@ -6,7 +6,5 @@ export const preparedHeaders = (headers: Headers, { getState }: any) => {
   if (access_token) {
     headers.set("authorization", `Bearer ${access_token}`);
   }
-
-  headers.set("Content-Type", "application/json");
   return headers;
 };

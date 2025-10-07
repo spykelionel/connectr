@@ -60,11 +60,13 @@ export const uploadApi = createApi({
         if (path) {
           formData.append("path", path);
         }
+        console.log(formData);
 
         return {
           url: "upload/simple",
           method: "POST",
           body: formData,
+          formData: true,
         };
       },
       invalidatesTags: ["Upload"],
@@ -92,6 +94,7 @@ export const uploadApi = createApi({
           url: "upload/single",
           method: "POST",
           body: formData,
+          formData: true,
         };
       },
       invalidatesTags: ["Upload"],
@@ -119,6 +122,7 @@ export const uploadApi = createApi({
           url: "upload/profile",
           method: "POST",
           body: formData,
+          formData: true,
         };
       },
       invalidatesTags: ["Upload"],
@@ -146,6 +150,7 @@ export const uploadApi = createApi({
           url: "upload/post",
           method: "POST",
           body: formData,
+          formData: true,
         };
       },
       invalidatesTags: ["Upload"],
@@ -173,6 +178,7 @@ export const uploadApi = createApi({
           url: "upload/network",
           method: "POST",
           body: formData,
+          formData: true,
         };
       },
       invalidatesTags: ["Upload"],
@@ -202,6 +208,7 @@ export const uploadApi = createApi({
           url: "upload/multiple",
           method: "POST",
           body: formData,
+          formData: true,
         };
       },
       invalidatesTags: ["Upload"],
@@ -212,6 +219,7 @@ export const uploadApi = createApi({
       query: (publicId) => ({
         url: `upload/${publicId}`,
         method: "DELETE",
+        formData: true,
       }),
       invalidatesTags: ["Upload"],
     }),
@@ -235,6 +243,7 @@ export const uploadApi = createApi({
         url: "upload/delete-multiple",
         method: "POST",
         body: { publicIds },
+        formData: true,
       }),
       invalidatesTags: ["Upload"],
     }),
@@ -247,29 +256,18 @@ export const uploadApi = createApi({
       query: ({ imageUrl, uploadDto = {} }) => ({
         url: "upload/from-url",
         method: "POST",
-        body: {
-          imageUrl,
-          ...uploadDto,
-        },
+        body: { imageUrl, ...uploadDto },
+        formData: true,
       }),
       invalidatesTags: ["Upload"],
     }),
 
-    // Generate signed upload URL
-    generateSignedUploadUrl: builder.mutation<
-      { uploadUrl: string; publicId: string },
-      UploadFileDto
-    >({
-      query: (uploadDto) => ({
-        url: "upload/signed-url",
-        method: "POST",
-        body: uploadDto,
-      }),
-    }),
-
     // Get file info
     getFileInfo: builder.query<UploadResponseDto, string>({
-      query: (publicId) => `upload/info/${publicId}`,
+      query: (publicId) => ({
+        url: `upload/info/${publicId}`,
+        formData: true,
+      }),
       providesTags: ["Upload"],
     }),
   }),
@@ -285,6 +283,5 @@ export const {
   useDeleteFileMutation,
   useDeleteMultipleFilesMutation,
   useUploadFromUrlMutation,
-  useGenerateSignedUploadUrlMutation,
   useGetFileInfoQuery,
 } = uploadApi;
