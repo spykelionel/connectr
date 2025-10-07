@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -70,6 +72,65 @@ export class PostController {
   })
   findAll() {
     return this.postService.findAll();
+  }
+
+  @Get('paginated')
+  @ApiOperation({ summary: 'Get posts with pagination' })
+  @ApiQuery({
+    name: 'page',
+    description: 'Page number (starts from 1)',
+    example: 1,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Number of posts per page',
+    example: 10,
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated posts successfully retrieved.',
+    schema: {
+      example: {
+        posts: [
+          {
+            id: 'post123',
+            body: 'This is a sample post content',
+            attachment: 'https://example.com/image.jpg',
+            userId: 'user123',
+            networkId: 'network123',
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+          },
+        ],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 50,
+          totalPages: 5,
+          hasNext: true,
+          hasPrev: false,
+        },
+      },
+    },
+  })
+  findAllPaginated(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+
+    // Validate parameters
+    if (pageNum < 1) {
+      throw new Error('Page must be greater than 0');
+    }
+    if (limitNum < 1 || limitNum > 100) {
+      throw new Error('Limit must be between 1 and 100');
+    }
+
+    return this.postService.findAllPaginated(pageNum, limitNum);
   }
 
   @Get('user/:userId')

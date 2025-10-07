@@ -60,6 +60,25 @@ export interface CreateCommentRequest {
   attachment?: string;
 }
 
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface PaginatedPostsResponse {
+  posts: Post[];
+  pagination: PaginationInfo;
+}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
 // Import User and Network types (these will be defined in their respective services)
 import { Network } from "../../network/interface";
 import { User } from "../../user/interface";

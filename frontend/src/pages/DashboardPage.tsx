@@ -3,6 +3,8 @@ import CreatePostModal from "@/components/posts/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { formatDate, getInitials } from "@/lib/utils";
 import type { Comment, Post } from "@/services/post/interface";
 import { AnimatePresence, motion } from "framer-motion";
@@ -25,7 +27,6 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
   useCreateCommentMutation,
-  useGetPostsQuery,
   useReactToPostMutation,
 } from "../services/api";
 import { RootState } from "../store";
@@ -35,9 +36,18 @@ const DashboardPage = () => {
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
 
-  const { data: posts = [], isLoading } = useGetPostsQuery();
+  const { posts, isLoading, isFetchingMore, hasNextPage, loadMore } =
+    useInfinitePosts({ limit: 10 });
+
   const [reactToPost] = useReactToPostMutation();
   const [createComment] = useCreateCommentMutation();
+
+  // Infinite scroll hook
+  const { sentinelRef } = useInfiniteScroll({
+    hasNextPage,
+    isFetching: isFetchingMore,
+    onLoadMore: loadMore,
+  });
 
   const handleReactToPost = async (
     postId: string,
@@ -299,6 +309,10 @@ const DashboardPage = () => {
         </motion.div>
 
         {/* Posts Feed */}
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-white">Posts Feed</h2>
+        </div>
+
         {isLoading ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -344,6 +358,43 @@ const DashboardPage = () => {
             ))}
           </div>
         )}
+
+        {/* Infinite Scroll Loading */}
+        {isFetchingMore && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center justify-center py-8"
+          >
+            <div className="flex items-center gap-2 text-white/60">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Loading more posts...</span>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Load More Button (Fallback) */}
+        {hasNextPage && !isFetchingMore && (
+          <div className="flex justify-center py-4">
+            <Button
+              onClick={loadMore}
+              variant="outline"
+              className="bg-white/5 border-white/20 text-white hover:bg-white/10"
+            >
+              Load More Posts
+            </Button>
+          </div>
+        )}
+
+        {/* End of Feed Message */}
+        {!hasNextPage && posts.length > 0 && (
+          <div className="text-center py-8 text-white/60">
+            <p>You've reached the end of the feed!</p>
+          </div>
+        )}
+
+        {/* Infinite Scroll Sentinel */}
+        <div ref={sentinelRef} className="h-4" />
       </div>
 
       {/* Right Sidebar */}

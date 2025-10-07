@@ -147,6 +147,83 @@ export class PostService {
     });
   }
 
+  async findAllPaginated(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [posts, total] = await Promise.all([
+      this.prisma.post.findMany({
+        skip,
+        take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profileurl: true,
+            },
+          },
+          network: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+          comments: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  profileurl: true,
+                },
+              },
+            },
+          },
+          upvotes: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          downvotes: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.post.count(),
+    ]);
+
+    return {
+      posts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   async findOne(id: string) {
     const post = await this.prisma.post.findUnique({
       where: { id },

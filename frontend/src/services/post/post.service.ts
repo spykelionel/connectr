@@ -4,6 +4,8 @@ import {
   Comment,
   CreateCommentRequest,
   CreatePostRequest,
+  PaginatedPostsResponse,
+  PaginationParams,
   Post,
 } from "./interface";
 
@@ -20,6 +22,64 @@ export const postApi = createApi({
           return response.data;
         }
         return [];
+      },
+    }),
+    getPostsPaginated: builder.query<PaginatedPostsResponse, PaginationParams>({
+      query: ({ page = 1, limit = 10 }) =>
+        `post/paginated?page=${page}&limit=${limit}`,
+      providesTags: ["Post"],
+      transformResponse: (response: any) => {
+        if (response && response.success && response.data) {
+          return response.data;
+        }
+        return {
+          posts: [],
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      },
+    }),
+    getPostsInfinite: builder.query<PaginatedPostsResponse, PaginationParams>({
+      query: ({ page = 1, limit = 10 }) =>
+        `post/paginated?page=${page}&limit=${limit}`,
+      providesTags: ["Post"],
+      transformResponse: (response: any) => {
+        if (response && response.success && response.data) {
+          return response.data;
+        }
+        return {
+          posts: [],
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      },
+      serializeQueryArgs: ({ queryArgs }) => {
+        const { page, ...otherArgs } = queryArgs;
+        return otherArgs;
+      },
+      merge: (currentCache, newItems, { arg }) => {
+        if (arg.page === 1) {
+          return newItems;
+        }
+        return {
+          posts: [...currentCache.posts, ...newItems.posts],
+          pagination: newItems.pagination,
+        };
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg?.page !== previousArg?.page;
       },
     }),
     getPost: builder.query<Post, string>({
@@ -107,6 +167,7 @@ export const postApi = createApi({
 
 export const {
   useGetPostsQuery,
+  useGetPostsPaginatedQuery,
   useGetPostQuery,
   useGetUserPostsQuery,
   useGetNetworkPostsQuery,
