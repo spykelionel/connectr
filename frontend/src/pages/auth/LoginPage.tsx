@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSuccess } from "@/features/auth/authSlice";
+import { RequestInterceptor } from "@/lib/api/interceptor";
 import { useLoginMutation } from "@/services/api";
 
 const loginSchema = z.object({
@@ -52,30 +53,42 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    try {
-      const result = await login({
-        email: data.email,
-        password: data.password,
-      }).unwrap();
 
-      if (result.token) {
+    try {
+      const result = await RequestInterceptor.handleRequest(
+        () =>
+          login({
+            email: data.email,
+            password: data.password,
+          }).unwrap(),
+        {
+          onSuccess: () => {
+            // The login success will be handled by the mutation result
+            toast.success("Welcome back to the circus!");
+            navigate(from, { replace: true });
+          },
+          onError: (error) => {
+            console.error("Login error:", error);
+          },
+          successMessage: "Login successful!",
+          errorMessage: "Login failed. Please check your credentials.",
+          showToast: true,
+        },
+        "LOGIN"
+      );
+
+      // Handle the successful login response
+      if (result.success && result.data) {
         dispatch(
           loginSuccess({
-            token: result.token,
-            user: {
-              id: result.userId || "",
-              name: result.userName || "",
-              email: data.email,
-              isAdmin: false,
-            },
+            access_token: result.data.access_token,
+            refresh_token: result.data.refresh_token,
+            user: result.data.user,
           })
         );
-
-        toast.success("Welcome back!");
-        navigate(from, { replace: true });
       }
-    } catch (error: any) {
-      toast.error(error.data?.message || "Login failed. Please try again.");
+    } catch (error) {
+      console.error("Login failed:", error);
     } finally {
       setIsLoading(false);
     }

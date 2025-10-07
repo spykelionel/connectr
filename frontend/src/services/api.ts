@@ -116,13 +116,18 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  message?: string;
-  token?: string;
-  ACK?: boolean;
-  userName?: string;
-  userId?: string;
-  access_token?: string;
-  refresh_token?: string;
+  message: string;
+  success: boolean;
+  data: {
+    access_token: string;
+    refresh_token: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      isAdmin: boolean;
+    };
+  };
 }
 
 // Post types

@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { logout } from "../features/auth/authSlice";
 import { BASE_URL } from "../lib/config";
+import { LocalStorage } from "../lib/util/localStorage";
 import { RootState } from "../store";
 import { preparedHeaders } from "./headers";
 
@@ -21,7 +22,7 @@ export async function baseQueryWithReauth(
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {
-    const refreshToken = localStorage.getItem("refresh_token");
+    const refreshToken = LocalStorage.getItem("refresh_token");
 
     if (!refreshToken) {
       console.error("No refresh token available, logging out user.");
@@ -58,8 +59,8 @@ export async function baseQueryWithReauth(
       };
 
       // Update tokens in localStorage
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
+      LocalStorage.setItem("access_token", access_token);
+      LocalStorage.setItem("refresh_token", refresh_token);
 
       // Retry the original request
       result = await baseQuery(args, api, extraOptions);
