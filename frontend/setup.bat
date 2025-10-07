@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo SocialSphere Frontend Setup Script
+echo CircusPrime Frontend Setup Script
 echo ========================================
 echo.
 
