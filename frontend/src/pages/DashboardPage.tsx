@@ -200,7 +200,7 @@ const DashboardPage = () => {
                       <Button
                         type="submit"
                         disabled={!commentText.trim() || isSubmittingComment}
-                        className="bg-blue-500 hover:bg-blue-600"
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
                       >
                         <Send className="h-4 w-4" />
                       </Button>
@@ -325,7 +325,7 @@ const DashboardPage = () => {
             </p>
             <Button
               onClick={() => setShowCreatePostModal(true)}
-              className="bg-blue-500 hover:bg-blue-600"
+              className="bg-blue-500 hover:bg-blue-600 text-white"
             >
               Create Post
             </Button>
@@ -405,7 +405,7 @@ const DashboardPage = () => {
             <p className="text-sm text-white/60">No suggestions available</p>
             <Button
               size="sm"
-              className="mt-4 gap-2 bg-blue-500 hover:bg-blue-600"
+              className="mt-4 gap-2 bg-blue-500 hover:bg-blue-600 text-white"
               onClick={() => setShowFindPeopleModal(true)}
             >
               <UserPlus className="h-4 w-4" />

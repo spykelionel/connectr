@@ -157,7 +157,7 @@ const Layout = () => {
               <h4 className="px-2 text-xs font-semibold text-white/60">
                 Quick Actions
               </h4>
-              <Button className="w-full justify-start gap-2 bg-blue-500 hover:bg-blue-600">
+              <Button className="w-full justify-start gap-2 bg-blue-500 hover:bg-blue-600 text-white">
                 <Plus className="h-4 w-4" />
                 Create Post
               </Button>
@@ -237,7 +237,7 @@ const Layout = () => {
             >
               <UserPlus className="h-5 w-5" />
             </Button>
-            <Button className="gap-2 bg-blue-500 hover:bg-blue-600">
+            <Button className="gap-2 bg-blue-500 hover:bg-blue-600 text-white">
               <Plus className="h-4 w-4" />
               Create Post
             </Button>

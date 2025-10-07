@@ -185,7 +185,7 @@ const ConnectionsPage = () => {
             </p>
             <Button
               onClick={() => setShowFindPeopleModal(true)}
-              className="bg-blue-500 hover:bg-blue-600"
+              className="bg-blue-500 hover:bg-blue-600 text-white"
             >
               <UserPlus className="h-4 w-4 mr-2" />
               Find People

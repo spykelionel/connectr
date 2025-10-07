@@ -40,6 +40,7 @@ A vibrant, energetic, and playful social networking application built with React
    ```
 
 3. **Build for Production**
+
    ```bash
    npm run build
    ```
@@ -58,6 +59,12 @@ src/
 ├── store/              # Redux store configuration
 └── lib/                # Utility functions
 ```
+
+## Quick testing
+
+🔑 Default login credentials:
+Email: <alex.johnson@email.com>
+Password: password123
 
 ## Available Scripts
 
