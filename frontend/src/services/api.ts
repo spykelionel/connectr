@@ -312,6 +312,7 @@ export const api = createApi({
       }),
       invalidatesTags: (_result, _error, { postId }) => [
         { type: "Post", id: postId },
+        "Post",
       ],
     }),
 

@@ -46,6 +46,12 @@ const DashboardPage = () => {
     const [showComments, setShowComments] = useState(false);
     const [comment, setComment] = useState("");
 
+    // Check if current user has upvoted this post
+    const hasUpvoted =
+      post.upvotes?.some((upvote) => upvote.userId === user?.id) || false;
+    const hasDownvoted =
+      post.downvotes?.some((downvote) => downvote.userId === user?.id) || false;
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -109,11 +115,36 @@ const DashboardPage = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-space-400 hover:text-red-400 hover:bg-red-400/10"
+                className={`${
+                  hasUpvoted
+                    ? "text-red-400 bg-red-400/10"
+                    : "text-space-400 hover:text-red-400 hover:bg-red-400/10"
+                }`}
                 onClick={() => handleReactToPost(post.id, "upvote")}
               >
-                <Heart className="w-4 h-4 mr-2" />
-                Like
+                <Heart
+                  className={`w-4 h-4 mr-2 ${hasUpvoted ? "fill-current" : ""}`}
+                />
+                {hasUpvoted ? "Liked" : "Like"} ({post.upvotes?.length || 0})
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`${
+                  hasDownvoted
+                    ? "text-blue-400 bg-blue-400/10"
+                    : "text-space-400 hover:text-blue-400 hover:bg-blue-400/10"
+                }`}
+                onClick={() => handleReactToPost(post.id, "downvote")}
+              >
+                <TrendingUp
+                  className={`w-4 h-4 mr-2 ${
+                    hasDownvoted ? "fill-current" : ""
+                  }`}
+                />
+                {hasDownvoted ? "Disliked" : "Dislike"} (
+                {post.downvotes?.length || 0})
               </Button>
 
               <Button

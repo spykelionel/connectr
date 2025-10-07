@@ -46,10 +46,13 @@ export class UpdatePostDto {
 }
 
 export class ReactToPostDto {
-  @ApiProperty({ description: 'User ID who is reacting', example: 'user123' })
-  @IsNotEmpty()
+  @ApiPropertyOptional({
+    description: 'User ID who is reacting',
+    example: 'user123',
+  })
+  @IsOptional()
   @IsString()
-  userId: string;
+  userId?: string;
 
   @ApiProperty({
     description: 'Type of reaction',
