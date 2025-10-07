@@ -8,7 +8,7 @@ import { ResponseTemplateInterceptor } from './core/interceptors/response-templa
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: ['http://localhost:3000', 'http://localhost:3001'], // Allow frontend origins
+      origin: ['http://localhost:3000', 'https://circusprime.netlify.app'], // Allow frontend origins
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: [
         'Origin',
