@@ -128,10 +128,8 @@ export class AuthService {
 
         return {
           ...tokens,
-          isFavorite,
-          message: 'Auth Successful',
-          userName: user?.name,
-          userId: user?.id,
+          message: 'Authentication Successful',
+          user,
         };
       } else {
         throw new ForbiddenException('Incorrect Password');
