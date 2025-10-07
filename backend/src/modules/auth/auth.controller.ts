@@ -1,20 +1,20 @@
 import {
-    Body,
-    Controller,
-    ForbiddenException,
-    Get,
-    Param,
-    Patch,
-    Post,
-    Req,
-    UseGuards,
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
-    ApiBearerAuth,
-    ApiOperation,
-    ApiResponse,
-    ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/core/guards/jwt.auth.guard';
 import { AuthService } from './auth.service';
@@ -87,11 +87,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async login(@Body() loginData: LoginDto) {
     const result = await this.authService.login(loginData);
-    return {
-      message: 'Auth Successful',
-      token: result.access_token,
-      ACK: true,
-    };
+    return result;
   }
 
   @Post('refresh')

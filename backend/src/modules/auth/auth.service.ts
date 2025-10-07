@@ -129,6 +129,7 @@ export class AuthService {
         return {
           ...tokens,
           isFavorite,
+          message: 'Auth Successful',
           userName: user?.name,
           userId: user?.id,
         };
