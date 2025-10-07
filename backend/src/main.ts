@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -9,6 +9,12 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log'],
   });
 
+  // version and prefix
+  app.setGlobalPrefix('api');
+  app.enableVersioning({
+    defaultVersion: '1',
+    type: VersioningType.URI,
+  });
   // setup swagger docs
   const swagConfig = new DocumentBuilder()
     .setTitle('Connectr API')
