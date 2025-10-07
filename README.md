@@ -1,4 +1,4 @@
-# 🎪 CircusPrime - Where Every Day is a Performance!
+# 🎪 CircusPrime - Where Every Day is a Performance
 
 Welcome to **CircusPrime**, the most vibrant, energetic, and playful social network where every interaction feels like part of an amazing circus performance! Step right up and join a community that celebrates wonder, excitement, and connection through bold colors, playful animations, and engaging interactions.
 
@@ -66,7 +66,7 @@ Welcome to **CircusPrime**, the most vibrant, energetic, and playful social netw
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/circusprime.git
+   git clone https://github.com/spykelionel/connectr.git
    cd circusprime
    ```
 
@@ -89,8 +89,8 @@ Welcome to **CircusPrime**, the most vibrant, energetic, and playful social netw
    ```
 
 4. **Access the Application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
+   - Frontend: <http://localhost:3000>
+   - Backend API: <http://localhost:3001>
 
 ## 🎭 Project Structure
 
@@ -203,7 +203,7 @@ Join our vibrant community of performers and creators:
 - **Discord**: [Join our circus troupe](https://discord.gg/circusprime)
 - **Twitter**: [@CircusPrime](https://twitter.com/circusprime)
 - **Instagram**: [@CircusPrime](https://instagram.com/circusprime)
-- **Website**: [circusprime.com](https://circusprime.com)
+- **Website**: [circusprime.com](https://circusprime.netlify.app/)
 
 ## 📄 License
 

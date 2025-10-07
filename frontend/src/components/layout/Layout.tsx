@@ -1,6 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { logout } from "@/features/auth/authSlice";
+import {
+  setTheme,
+  toggleMobileMenu,
+  toggleSidebar,
+} from "@/features/ui/uiSlice";
+import { RootState } from "@/store";
+import { APP_NAME } from "@/utils/constants";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
@@ -20,13 +28,6 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { logout } from "../../features/auth/authSlice";
-import {
-  setTheme,
-  toggleMobileMenu,
-  toggleSidebar,
-} from "../../features/ui/uiSlice";
-import { RootState } from "../../store";
 
 const Layout = () => {
   const location = useLocation();
@@ -102,9 +103,7 @@ const Layout = () => {
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cosmic-600 to-starlight-500 flex items-center justify-center">
                 <Globe className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold cosmic-text">
-                SocialSphere
-              </span>
+              <span className="text-xl font-bold cosmic-text">{APP_NAME}</span>
             </motion.div>
 
             <Button
@@ -232,7 +231,7 @@ const Layout = () => {
               <div className="relative max-w-md flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-space-400" />
                 <Input
-                  placeholder="Search SocialSphere..."
+                  placeholder={`Search ${APP_NAME}...`}
                   className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-space-400 focus:border-cosmic-400"
                 />
               </div>

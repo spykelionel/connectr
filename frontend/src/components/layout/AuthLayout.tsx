@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Stars } from "lucide-react";
 import { Outlet } from "react-router-dom";
 
+import { APP_NAME, APP_TAGLINE } from "../../utils/constants";
+
 const AuthLayout = () => {
   return (
     <div className="min-h-screen cosmic-bg relative overflow-hidden">
@@ -49,10 +51,8 @@ const AuthLayout = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-cosmic-600 to-starlight-500 mb-4">
               <Stars className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold cosmic-text">SocialSphere</h1>
-            <p className="text-space-300 mt-2">
-              Connect with your cosmic peers
-            </p>
+            <h1 className="text-3xl font-bold cosmic-text">{APP_NAME}</h1>
+            <p className="text-space-300 mt-2">{APP_TAGLINE}</p>
           </motion.div>
 
           {/* Auth form container */}

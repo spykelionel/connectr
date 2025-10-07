@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { APP_NAME, COPYRIGHT_TEXT } from "../utils/constants";
 
 const LandingPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -77,8 +78,7 @@ const LandingPage = () => {
     {
       name: "Sarah Johnson",
       role: "Tech Entrepreneur",
-      content:
-        "SocialSphere has revolutionized how I connect with my professional network. The interface is beautiful and intuitive.",
+      content: `${APP_NAME} has revolutionized how I connect with my professional network. The interface is beautiful and intuitive.`,
       avatar:
         "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
     },
@@ -160,7 +160,7 @@ const LandingPage = () => {
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cosmic-600 to-starlight-500 flex items-center justify-center">
             <Stars className="w-6 h-6 text-white" />
           </div>
-          <span className="text-2xl font-bold cosmic-text">SocialSphere</span>
+          <span className="text-2xl font-bold cosmic-text">{APP_NAME}</span>
         </motion.div>
 
         <div className="hidden md:flex items-center space-x-8">
@@ -400,7 +400,7 @@ const LandingPage = () => {
               Ready to Transform Your Social Experience?
             </h2>
             <p className="text-xl text-space-300 max-w-2xl mx-auto">
-              Join SocialSphere today and discover a new way to connect with the
+              Join {APP_NAME} today and discover a new way to connect with the
               world around you.
             </p>
 
@@ -431,7 +431,7 @@ const LandingPage = () => {
                   <Stars className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold cosmic-text">
-                  SocialSphere
+                  {APP_NAME}
                 </span>
               </div>
               <p className="text-space-400">
@@ -515,8 +515,7 @@ const LandingPage = () => {
 
           <div className="border-t border-white/10 mt-8 pt-8 text-center">
             <p className="text-space-400">
-              © 2024 SocialSphere. All rights reserved. Made with ❤️ for cosmic
-              connections.
+              {COPYRIGHT_TEXT} Made with ❤️ for cosmic connections.
             </p>
           </div>
         </div>
