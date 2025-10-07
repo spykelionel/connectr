@@ -116,16 +116,35 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
+  statusCode: number;
   message: string;
   success: boolean;
   data: {
+    id: string;
+    name: string;
+    gender?: string | null;
+    email: string;
+    contact?: string | null;
+    profileurl?: string | null;
+    isAdmin: boolean;
+    createdAt: string;
+    updatedAt: string;
+    refreshToken?: string | null;
+    roleId?: string | null;
     access_token: string;
     refresh_token: string;
-    user: {
+    isFavorite?: boolean;
+    userName: string;
+    userId: string;
+    user?: {
       id: string;
       name: string;
+      gender?: string | null;
       email: string;
-      isAdmin: boolean;
+      contact?: string | null;
+      profileurl?: string | null;
+      createdAt: string;
+      roleId?: string | null;
     };
   };
 }
@@ -227,6 +246,13 @@ export const api = createApi({
     getPosts: builder.query<Post[], void>({
       query: () => "post",
       providesTags: ["Post"],
+      transformResponse: (response: any) => {
+        // Handle the actual backend response structure
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     getPost: builder.query<Post, string>({
       query: (id) => `post/${id}`,

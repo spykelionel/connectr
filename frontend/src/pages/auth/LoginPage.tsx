@@ -83,7 +83,12 @@ const LoginPage = () => {
           loginSuccess({
             access_token: result.data.access_token,
             refresh_token: result.data.refresh_token,
-            user: result.data.user,
+            user: {
+              id: result.data.user?.id || result.data.id,
+              name: result.data.user?.name || result.data.name,
+              email: result.data.user?.email || result.data.email,
+              isAdmin: result.data.isAdmin,
+            },
           })
         );
       }

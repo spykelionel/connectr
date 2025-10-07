@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSuccess } from "@/features/auth/authSlice";
+import { RequestInterceptor } from "@/lib/api/interceptor";
 import { getPasswordStrength } from "@/lib/utils";
 import { useRegisterMutation } from "@/services/api";
 
@@ -69,36 +70,51 @@ const RegisterPage = () => {
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
-    try {
-      const result = await register({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        gender: data.gender,
-        contact: data.contact,
-      }).unwrap();
 
-      if (result.token || result.access_token) {
+    try {
+      const result = await RequestInterceptor.handleRequest(
+        () =>
+          register({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            gender: data.gender,
+            contact: data.contact,
+          }).unwrap(),
+        {
+          onSuccess: () => {
+            toast.success(
+              "Account created successfully! Welcome to CircusPrime!"
+            );
+            navigate("/app/dashboard", { replace: true });
+          },
+          onError: (error) => {
+            console.error("Registration error:", error);
+          },
+          successMessage: "Registration successful!",
+          errorMessage: "Registration failed. Please try again.",
+          showToast: true,
+        },
+        "REGISTER"
+      );
+
+      // Handle the successful registration response
+      if (result.success && result.data) {
         dispatch(
           loginSuccess({
-            token: result.token || result.access_token || "",
-            refreshToken: result.refresh_token,
+            access_token: result.data.access_token,
+            refresh_token: result.data.refresh_token,
             user: {
-              id: result.userId || result.userName || "",
-              name: result.userName || data.name,
-              email: data.email,
-              isAdmin: false,
+              id: result.data.id,
+              name: result.data.name,
+              email: result.data.email,
+              isAdmin: result.data.isAdmin,
             },
           })
         );
-
-        toast.success("Account created successfully! Welcome to SocialSphere!");
-        navigate("/app/dashboard", { replace: true });
       }
-    } catch (error: any) {
-      toast.error(
-        error.data?.message || "Registration failed. Please try again."
-      );
+    } catch (error) {
+      console.error("Registration failed:", error);
     } finally {
       setIsLoading(false);
     }
