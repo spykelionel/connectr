@@ -1,3 +1,4 @@
+import CreatePostModal from "@/components/posts/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -9,46 +10,26 @@ import {
   Globe,
   Heart,
   Image as ImageIcon,
-  Link as LinkIcon,
   MessageCircle,
   MoreHorizontal,
   Plus,
   Send,
   Share2,
-  Smile,
   TrendingUp,
   Users,
   Video,
 } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  useCreatePostMutation,
-  useGetPostsQuery,
-  useReactToPostMutation,
-} from "../services/api";
+import { useGetPostsQuery, useReactToPostMutation } from "../services/api";
 import { RootState } from "../store";
 
 const DashboardPage = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [newPost, setNewPost] = useState("");
-  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showCreatePostModal, setShowCreatePostModal] = useState(false);
 
   const { data: posts = [], isLoading } = useGetPostsQuery();
-  const [createPost] = useCreatePostMutation();
   const [reactToPost] = useReactToPostMutation();
-
-  const handleCreatePost = async () => {
-    if (!newPost.trim()) return;
-
-    try {
-      await createPost({ body: newPost }).unwrap();
-      setNewPost("");
-      setShowCreatePost(false);
-    } catch (error) {
-      console.error("Failed to create post:", error);
-    }
-  };
 
   const handleReactToPost = async (
     postId: string,
@@ -277,7 +258,7 @@ const DashboardPage = () => {
             <CardContent className="space-y-3">
               <Button
                 className="w-full justify-start cosmic"
-                onClick={() => setShowCreatePost(true)}
+                onClick={() => setShowCreatePostModal(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Post
@@ -338,81 +319,14 @@ const DashboardPage = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <Textarea
-                    placeholder="What's on your mind?"
-                    value={newPost}
-                    onChange={(e) => setNewPost(e.target.value)}
-                    className="min-h-[60px] bg-white/10 border-white/20 text-white placeholder:text-space-400 resize-none"
-                    onClick={() => setShowCreatePost(true)}
-                  />
+                  <Button
+                    onClick={() => setShowCreatePostModal(true)}
+                    className="w-full justify-start bg-white/10 border-white/20 text-white hover:bg-white/20 h-12"
+                  >
+                    <span className="text-space-400">What's on your mind?</span>
+                  </Button>
                 </div>
               </div>
-
-              <AnimatePresence>
-                {showCreatePost && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-4 space-y-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-space-400 hover:text-white"
-                        >
-                          <ImageIcon className="w-4 h-4 mr-2" />
-                          Photo
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-space-400 hover:text-white"
-                        >
-                          <Video className="w-4 h-4 mr-2" />
-                          Video
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-space-400 hover:text-white"
-                        >
-                          <LinkIcon className="w-4 h-4 mr-2" />
-                          Link
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-space-400 hover:text-white"
-                        >
-                          <Smile className="w-4 h-4 mr-2" />
-                          Emoji
-                        </Button>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowCreatePost(false)}
-                          className="glass-card text-white border-white/20"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="cosmic"
-                          onClick={handleCreatePost}
-                          disabled={!newPost.trim()}
-                        >
-                          Post
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </CardContent>
           </Card>
 
@@ -555,6 +469,15 @@ const DashboardPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Create Post Modal */}
+      <CreatePostModal
+        isOpen={showCreatePostModal}
+        onClose={() => setShowCreatePostModal(false)}
+        onSuccess={() => {
+          // Optionally refresh posts or show success message
+        }}
+      />
     </div>
   );
 };

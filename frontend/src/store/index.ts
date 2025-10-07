@@ -7,10 +7,12 @@ import postsReducer from "../features/posts/postsSlice";
 import uiReducer from "../features/ui/uiSlice";
 import userReducer from "../features/user/userSlice";
 import { api } from "../services/api";
+import { uploadApi } from "../services/uploadApi";
 
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
+    [uploadApi.reducerPath]: uploadApi.reducer,
     auth: authReducer,
     user: userReducer,
     posts: postsReducer,
@@ -23,7 +25,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
-    }).concat(api.middleware),
+    }).concat(api.middleware, uploadApi.middleware),
   devTools: true,
 });
 
