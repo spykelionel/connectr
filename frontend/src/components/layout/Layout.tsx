@@ -40,7 +40,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
-  const { sidebarOpen, mobileMenuOpen, theme } = useSelector(
+  const { mobileMenuOpen, theme } = useSelector(
     (state: RootState) => state.ui
   );
 
@@ -55,12 +55,11 @@ const Layout = () => {
     skip: !user?.id,
   });
   const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
   // Update desktop state on resize
   React.useEffect(() => {
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1024);
+      // Handle resize if needed
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

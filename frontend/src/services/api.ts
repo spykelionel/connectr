@@ -16,3 +16,9 @@ export { utilApi } from "./util/util.service";
 
 // Re-export auth reducer for store
 export { authReducer } from "./auth/auth.service";
+
+// Re-export types
+export type { User } from "./auth/interface";
+export type { Connection } from "./connection/interface";
+export type { Network } from "./network/interface";
+export type { Post } from "./post/interface";

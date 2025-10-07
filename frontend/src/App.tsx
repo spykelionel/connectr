@@ -25,7 +25,6 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   const dispatch = useDispatch();
-  const { access_token } = useSelector((state: RootState) => state.auth);
   const { theme } = useSelector((state: RootState) => state.ui);
 
   useEffect(() => {
