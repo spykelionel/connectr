@@ -109,16 +109,16 @@ const DashboardPage = () => {
       >
         <div className="flex items-start gap-3">
           <Avatar>
-            <AvatarImage src={post.author?.profileurl} />
+            <AvatarImage src={post.user?.profileurl} />
             <AvatarFallback className="bg-blue-500">
-              {getInitials(post.author?.name || "U")}
+              {getInitials(post.user?.name || "U")}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-white">
-                  {post.author?.name || "Unknown User"}
+                  {post.user?.name || "Unknown User"}
                 </h3>
                 <p className="text-sm text-white/60">
                   {formatDate(post.createdAt)}
@@ -223,13 +223,13 @@ const DashboardPage = () => {
                       <div key={comment.id} className="flex gap-3">
                         <Avatar className="w-8 h-8">
                           <AvatarFallback className="bg-blue-500 text-xs">
-                            {getInitials(comment.author?.name || "U")}
+                            {getInitials(comment.user?.name || "U")}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="bg-white/5 rounded-lg p-3">
                             <p className="text-sm font-medium text-white">
-                              {comment.author?.name || "Unknown User"}
+                              {comment.user?.name || "Unknown User"}
                             </p>
                             <p className="text-sm text-white/80 mt-1">
                               {comment.body}
