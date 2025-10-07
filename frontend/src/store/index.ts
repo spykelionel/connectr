@@ -24,7 +24,7 @@ export const store = configureStore({
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
     }).concat(api.middleware),
-  devTools: process.env.NODE_ENV !== "production",
+  devTools: true,
 });
 
 setupListeners(store.dispatch);
