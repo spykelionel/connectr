@@ -18,9 +18,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginSuccess } from "@/features/auth/authSlice";
 import { RequestInterceptor } from "@/lib/api/interceptor";
-import { useLoginMutation } from "@/services/api";
+import { useLoginMutation, saveUser } from "@/services/api";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -80,14 +79,20 @@ const LoginPage = () => {
       // Handle the successful login response
       if (result.success && result.data) {
         dispatch(
-          loginSuccess({
+          saveUser({
             access_token: result.data.access_token,
             refresh_token: result.data.refresh_token,
             user: {
               id: result.data.user?.id || result.data.id,
               name: result.data.user?.name || result.data.name,
               email: result.data.user?.email || result.data.email,
+              gender: result.data.user?.gender || result.data.gender,
+              contact: result.data.user?.contact || result.data.contact,
+              profileurl: result.data.user?.profileurl || result.data.profileurl,
               isAdmin: result.data.isAdmin,
+              roleId: result.data.user?.roleId || result.data.roleId,
+              createdAt: result.data.user?.createdAt || result.data.createdAt,
+              updatedAt: result.data.user?.updatedAt || result.data.updatedAt,
             },
           })
         );

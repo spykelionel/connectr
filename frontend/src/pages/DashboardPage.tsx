@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDate, formatNumber, getInitials } from "@/lib/utils";
-import type { Post } from "@/services/api";
+import type {
+  Comment,
+  Post,
+  PostDownvote,
+  PostUpvote,
+} from "@/services/post/interface";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Globe,
@@ -48,9 +53,12 @@ const DashboardPage = () => {
 
     // Check if current user has upvoted this post
     const hasUpvoted =
-      post.upvotes?.some((upvote) => upvote.userId === user?.id) || false;
+      post.upvotes?.some((upvote: PostUpvote) => upvote.userId === user?.id) ||
+      false;
     const hasDownvoted =
-      post.downvotes?.some((downvote) => downvote.userId === user?.id) || false;
+      post.downvotes?.some(
+        (downvote: PostDownvote) => downvote.userId === user?.id
+      ) || false;
 
     return (
       <motion.div
@@ -207,7 +215,7 @@ const DashboardPage = () => {
 
                   {/* Comments list */}
                   <div className="space-y-3">
-                    {post.comments?.slice(0, 3).map((comment) => (
+                    {post.comments?.slice(0, 3).map((comment: Comment) => (
                       <div
                         key={comment.id}
                         className="flex items-start space-x-3"

@@ -25,9 +25,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   const dispatch = useDispatch();
-  const { isAuthenticated: _isAuthenticated } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { access_token } = useSelector((state: RootState) => state.auth);
   const { theme } = useSelector((state: RootState) => state.ui);
 
   useEffect(() => {
@@ -66,6 +64,15 @@ function App() {
       }
     }
   }, [theme]);
+
+  // wake up render service
+  // useEffect(()=>{
+  //   const wakeUp = async()=>{
+  //     const response = await fetch("https://socialsphere-tqxr.onrender.com/");
+  //     console.log(response);
+  //   }
+  //   wakeUp();
+  // }, [])
 
   return (
     <div className="min-h-screen cosmic-bg">
