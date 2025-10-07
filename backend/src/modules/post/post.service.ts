@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePostDto, ReactToPostDto, UpdatePostDto } from './dto';
 
@@ -6,10 +10,10 @@ import { CreatePostDto, ReactToPostDto, UpdatePostDto } from './dto';
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, userId: string) {
     // Verify user exists
     const user = await this.prisma.user.findUnique({
-      where: { id: createPostDto.userId },
+      where: { id: userId },
     });
 
     if (!user) {
@@ -28,7 +32,10 @@ export class PostService {
     }
 
     return this.prisma.post.create({
-      data: createPostDto,
+      data: {
+        ...createPostDto,
+        userId,
+      },
       include: {
         user: {
           select: {

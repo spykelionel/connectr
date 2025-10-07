@@ -18,14 +18,6 @@ export class CreatePostDto {
   @IsString()
   attachment?: string;
 
-  @ApiProperty({
-    description: 'User ID who created the post',
-    example: 'user123',
-  })
-  @IsNotEmpty()
-  @IsString()
-  userId: string;
-
   @ApiPropertyOptional({
     description: 'Network ID where post belongs',
     example: 'network123',

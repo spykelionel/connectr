@@ -46,8 +46,7 @@ export class PostController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   create(@Body() createPostDto: CreatePostDto, @Request() req: any) {
-    createPostDto.userId = req.user.id;
-    return this.postService.create(createPostDto);
+    return this.postService.create(createPostDto, req.user.id);
   }
 
   @Get()

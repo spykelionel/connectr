@@ -14,7 +14,7 @@ export interface FileValidationOptions {
 @Injectable()
 export class FileValidationPipe implements PipeTransform {
   private readonly defaultOptions: FileValidationOptions = {
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 50 * 1024 * 1024, // 50MB
     allowedMimeTypes: [
       'image/jpeg',
       'image/jpg',
@@ -66,12 +66,12 @@ export class FileValidationPipe implements PipeTransform {
 
 // Predefined validation pipes for common use cases
 export const ProfileImageValidationPipe = new FileValidationPipe({
-  maxSize: 5 * 1024 * 1024, // 5MB
+  maxSize: 20 * 1024 * 1024, // 20MB
   allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
 });
 
 export const PostImageValidationPipe = new FileValidationPipe({
-  maxSize: 10 * 1024 * 1024, // 10MB
+  maxSize: 50 * 1024 * 1024, // 50MB
   allowedMimeTypes: [
     'image/jpeg',
     'image/jpg',
@@ -82,6 +82,6 @@ export const PostImageValidationPipe = new FileValidationPipe({
 });
 
 export const NetworkImageValidationPipe = new FileValidationPipe({
-  maxSize: 5 * 1024 * 1024, // 5MB
+  maxSize: 20 * 1024 * 1024, // 20MB
   allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
 });
