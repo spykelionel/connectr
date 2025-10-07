@@ -50,7 +50,7 @@ const CreatePostModal = ({
   const [createPost] = useCreatePostMutation();
   const { data: userNetworks = [] } = useGetUserNetworksQuery(user?.id || "");
 
-  const { upload, isUploading, progress } = useUpload("post", {
+  const { upload, progress } = useUpload("post", {
     onSuccess: (url) => {
       setUploadedUrls((prev) => [...prev, url]);
     },
@@ -65,15 +65,12 @@ const CreatePostModal = ({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch,
   } = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
     defaultValues: {
       networkId: "",
     },
   });
-
-  const selectedNetworkId = watch("networkId");
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -100,9 +97,16 @@ const CreatePostModal = ({
         const url = await upload(image);
         if (url) {
           urls.push(url);
+        } else {
+          // If any upload fails, throw an error to stop the process
+          throw new Error(`Failed to upload image: ${image.name}`);
         }
       }
       return urls;
+    } catch (error) {
+      // If upload fails, clear any partial uploads and rethrow
+      setUploadedUrls([]);
+      throw error;
     } finally {
       setIsUploadingImages(false);
     }
@@ -110,16 +114,23 @@ const CreatePostModal = ({
 
   const onSubmit = async (data: CreatePostFormData) => {
     try {
-      // Upload images first
+      // Upload images first - if this fails, don't create the post
       const imageUrls = await uploadImages();
 
       const result = await RequestInterceptor.handleRequest(
-        () =>
-          createPost({
+        async () => {
+          const post = await createPost({
             body: data.body,
             attachment: imageUrls.length > 0 ? imageUrls[0] : undefined, // Backend expects single attachment
             networkId: data.networkId || undefined,
-          }).unwrap(),
+          }).unwrap();
+
+          return {
+            message: "Post created successfully",
+            success: true,
+            data: post,
+          };
+        },
         {
           onSuccess: () => {
             reset();
@@ -143,6 +154,8 @@ const CreatePostModal = ({
       }
     } catch (error) {
       console.error("Post creation failed:", error);
+      // Don't reset form or close modal on upload failure
+      // Let user retry or fix the issue
     }
   };
 

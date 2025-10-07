@@ -11,10 +11,7 @@ interface UseUploadOptions {
 }
 
 interface UseUploadReturn {
-  upload: (
-    file: File,
-    options?: { folder?: string }
-  ) => Promise<string | null>;
+  upload: (file: File, options?: { folder?: string }) => Promise<string | null>;
   uploadMultiple: (
     files: File[],
     options?: { folder?: string }
@@ -85,6 +82,10 @@ export const useUpload = (
         const path = uploadOptions.folder || `${service}s`;
         result = await uploadSimple({ file, path }).unwrap();
 
+        if (!result || !result.secure_url) {
+          throw new Error("Upload failed: No URL returned from server");
+        }
+
         clearInterval(progressInterval);
         setProgress(100);
 
@@ -111,13 +112,7 @@ export const useUpload = (
         setProgress(0);
       }
     },
-    [
-      service,
-      uploadSimple,
-      onSuccess,
-      onError,
-      showToast,
-    ]
+    [service, uploadSimple, onSuccess, onError, showToast]
   );
 
   const uploadMultiple = useCallback(

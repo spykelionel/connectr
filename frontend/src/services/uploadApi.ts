@@ -49,26 +49,26 @@ export const uploadApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ["Upload"],
   endpoints: (builder) => ({
-     // Simple upload - Main upload method for all file types
-     uploadSimple: builder.mutation<
-       UploadResponseDto,
-       { file: File; path?: string }
-     >({
-       query: ({ file, path }) => {
-         const formData = new FormData();
-         formData.append("file", file);
-         if (path) {
-           formData.append("path", path);
-         }
+    // Simple upload - Main upload method for all file types
+    uploadSimple: builder.mutation<
+      UploadResponseDto,
+      { file: File; path?: string }
+    >({
+      query: ({ file, path }) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        if (path) {
+          formData.append("path", path);
+        }
 
-         return {
-           url: "upload/simple",
-           method: "POST",
-           body: formData,
-         };
-       },
-       invalidatesTags: ["Upload"],
-     }),
+        return {
+          url: "upload/simple",
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["Upload"],
+    }),
 
     // Single file upload
     uploadSingle: builder.mutation<
