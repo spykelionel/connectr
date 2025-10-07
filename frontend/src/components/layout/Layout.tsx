@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { setTheme, toggleMobileMenu } from "@/features/ui/uiSlice";
 import { getInitials } from "@/lib/utils";
-import { logOutUser } from "@/services/api";
+import {
+  useGetConnectionsQuery,
+  useGetUserNetworksQuery,
+  useGetUserPostsQuery,
+} from "@/services/api";
+import { logOutUser } from "@/services/auth/auth.service";
 import { RootState } from "@/store";
 import { APP_NAME } from "@/utils/constants";
 import {
@@ -38,6 +43,17 @@ const Layout = () => {
   const { sidebarOpen, mobileMenuOpen, theme } = useSelector(
     (state: RootState) => state.ui
   );
+
+  // Fetch user statistics
+  const { data: userPosts = [] } = useGetUserPostsQuery(user?.id || "", {
+    skip: !user?.id,
+  });
+  const { data: userConnections = [] } = useGetConnectionsQuery(undefined, {
+    skip: !user?.id,
+  });
+  const { data: userNetworks = [] } = useGetUserNetworksQuery(user?.id || "", {
+    skip: !user?.id,
+  });
   const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
@@ -141,15 +157,17 @@ const Layout = () => {
                 <p className="text-xs text-white/60">{user?.email}</p>
                 <div className="mt-4 flex w-full justify-around text-center">
                   <div>
-                    <p className="text-lg font-bold">0</p>
+                    <p className="text-lg font-bold">{userPosts.length}</p>
                     <p className="text-xs text-white/60">Posts</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold">0</p>
+                    <p className="text-lg font-bold">
+                      {userConnections.length}
+                    </p>
                     <p className="text-xs text-white/60">Connections</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold">0</p>
+                    <p className="text-lg font-bold">{userNetworks.length}</p>
                     <p className="text-xs text-white/60">Networks</p>
                   </div>
                 </div>
