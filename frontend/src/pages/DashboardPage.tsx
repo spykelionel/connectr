@@ -2,29 +2,20 @@ import FindPeopleModal from "@/components/connections/FindPeopleModal";
 import CreatePostModal from "@/components/posts/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { formatDate, formatNumber, getInitials } from "@/lib/utils";
-import type {
-  Comment,
-  Post,
-  PostDownvote,
-  PostUpvote,
-} from "@/services/post/interface";
+import { formatDate, getInitials } from "@/lib/utils";
+import type { Comment, Post } from "@/services/post/interface";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Globe,
   Heart,
-  Image as ImageIcon,
   MessageCircle,
   MoreHorizontal,
-  Plus,
   Send,
   Share2,
-  TrendingUp,
+  ThumbsDown,
   UserPlus,
   Users,
-  Video,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -58,33 +49,28 @@ const DashboardPage = () => {
     return allUsers.filter((u) => u.id !== user?.id).slice(0, 3);
   }, [allUsers, user?.id]);
 
-  // Debug logging
-  console.log(
-    "allUsers:",
-    allUsers,
-    "isArray:",
-    Array.isArray(allUsers),
-    "usersError:",
-    usersError
-  );
-
   const handleReactToPost = async (
     postId: string,
     reactionType: "upvote" | "downvote"
   ) => {
     try {
-      await reactToPost({ postId, reactionType }).unwrap();
+      await reactToPost({
+        postId,
+        reactionType,
+      }).unwrap();
     } catch (error) {
       console.error("Failed to react to post:", error);
     }
   };
 
   const handleCreateComment = async (postId: string, commentText: string) => {
+    if (!commentText.trim() || !user?.id) return;
+
     try {
       await createComment({
-        postId,
         body: commentText,
-        userId: user?.id || "",
+        postId,
+        userId: user.id,
       }).unwrap();
     } catch (error) {
       console.error("Failed to create comment:", error);
@@ -93,197 +79,165 @@ const DashboardPage = () => {
 
   const PostCard = ({ post }: { post: Post }) => {
     const [showComments, setShowComments] = useState(false);
-    const [comment, setComment] = useState("");
+    const [commentText, setCommentText] = useState("");
+    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
-    // Check if current user has upvoted this post
-    const hasUpvoted =
-      post.upvotes?.some((upvote: PostUpvote) => upvote.userId === user?.id) ||
-      false;
-    const hasDownvoted =
-      post.downvotes?.some(
-        (downvote: PostDownvote) => downvote.userId === user?.id
-      ) || false;
+    const handleSubmitComment = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!commentText.trim()) return;
+
+      setIsSubmittingComment(true);
+      try {
+        await handleCreateComment(post.id, commentText);
+        setCommentText("");
+        setShowComments(false);
+      } catch (error) {
+        console.error("Failed to submit comment:", error);
+      } finally {
+        setIsSubmittingComment(false);
+      }
+    };
+
+    const upvotes = post.upvotes?.length || 0;
+    const downvotes = post.downvotes?.length || 0;
 
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="rounded-lg border border-white/10 bg-white/5 p-6"
       >
-        <Card className="glass-card border-white/20 hover-lift">
-          <CardHeader className="pb-4">
+        <div className="flex items-start gap-3">
+          <Avatar>
+            <AvatarImage src={post.author?.profileurl} />
+            <AvatarFallback className="bg-blue-500">
+              {getInitials(post.author?.name || "U")}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={post.user?.profileurl} />
-                  <AvatarFallback className="bg-cosmic-600 text-white">
-                    {getInitials(post.user?.name || "Unknown")}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h4 className="text-white font-semibold">
-                    {post.user?.name}
-                  </h4>
-                  <p className="text-space-400 text-sm">
-                    {formatDate(post.createdAt)}
-                  </p>
-                </div>
+              <div>
+                <h3 className="font-semibold text-white">
+                  {post.author?.name || "Unknown User"}
+                </h3>
+                <p className="text-sm text-white/60">
+                  {formatDate(post.createdAt)}
+                </p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-space-400 hover:text-white"
+                className="text-white/60 hover:bg-white/10"
               >
-                <MoreHorizontal className="w-4 h-4" />
+                <MoreHorizontal className="h-5 w-5" />
               </Button>
             </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {post.body && (
-              <p className="text-space-200 leading-relaxed">{post.body}</p>
-            )}
+            <p className="mt-3 text-white/90">{post.body}</p>
 
             {post.attachment && (
-              <div className="rounded-lg overflow-hidden">
+              <div className="mt-4 overflow-hidden rounded-lg">
                 <img
                   src={post.attachment}
-                  alt="Post attachment"
-                  className="w-full h-auto max-h-96 object-cover"
+                  alt="Post content"
+                  className="w-full"
                 />
               </div>
             )}
 
-            {/* Engagement stats */}
-            <div className="flex items-center justify-between text-sm text-space-400">
-              <div className="flex items-center space-x-4">
-                <span>{formatNumber(post.upvotes?.length || 0)} likes</span>
-                <span>{formatNumber(post.comments?.length || 0)} comments</span>
-              </div>
+            <div className="mt-4 flex items-center gap-1 text-sm text-white/60">
+              <span>{upvotes} likes</span>
+              <span>•</span>
+              <span>{post.comments?.length || 0} comments</span>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+            <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-4">
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${
-                  hasUpvoted
-                    ? "text-red-400 bg-red-400/10"
-                    : "text-space-400 hover:text-red-400 hover:bg-red-400/10"
-                }`}
+                className="flex-1 gap-2 text-white/60 hover:bg-white/10 hover:text-white"
                 onClick={() => handleReactToPost(post.id, "upvote")}
               >
-                <Heart
-                  className={`w-4 h-4 mr-2 ${hasUpvoted ? "fill-current" : ""}`}
-                />
-                {hasUpvoted ? "Liked" : "Like"} ({post.upvotes?.length || 0})
+                <Heart className="h-4 w-4" />
+                Like ({upvotes})
               </Button>
-
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${
-                  hasDownvoted
-                    ? "text-blue-400 bg-blue-400/10"
-                    : "text-space-400 hover:text-blue-400 hover:bg-blue-400/10"
-                }`}
+                className="flex-1 gap-2 text-white/60 hover:bg-white/10 hover:text-white"
                 onClick={() => handleReactToPost(post.id, "downvote")}
               >
-                <TrendingUp
-                  className={`w-4 h-4 mr-2 ${
-                    hasDownvoted ? "fill-current" : ""
-                  }`}
-                />
-                {hasDownvoted ? "Disliked" : "Dislike"} (
-                {post.downvotes?.length || 0})
+                <ThumbsDown className="h-4 w-4" />
+                Dislike ({downvotes})
               </Button>
-
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-space-400 hover:text-blue-400 hover:bg-blue-400/10"
+                className="flex-1 gap-2 text-white/60 hover:bg-white/10 hover:text-white"
                 onClick={() => setShowComments(!showComments)}
               >
-                <MessageCircle className="w-4 h-4 mr-2" />
+                <MessageCircle className="h-4 w-4" />
                 Comment
               </Button>
-
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-space-400 hover:text-green-400 hover:bg-green-400/10"
+                className="flex-1 gap-2 text-white/60 hover:bg-white/10 hover:text-white"
               >
-                <Share2 className="w-4 h-4 mr-2" />
+                <Share2 className="h-4 w-4" />
                 Share
               </Button>
             </div>
 
-            {/* Comments section */}
+            {/* Comments Section */}
             <AnimatePresence>
               {showComments && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="space-y-4 pt-4 border-t border-white/10"
+                  className="mt-4 border-t border-white/10 pt-4"
                 >
-                  {/* Comment input */}
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={user?.profileurl} />
-                      <AvatarFallback className="bg-cosmic-600 text-white text-xs">
-                        {getInitials(user?.name || "U")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 flex items-center space-x-2">
+                  {/* Comment Form */}
+                  <form onSubmit={handleSubmitComment} className="mb-4">
+                    <div className="flex gap-2">
                       <Textarea
                         placeholder="Write a comment..."
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-space-400 resize-none"
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-white/40 resize-none"
+                        rows={2}
                       />
                       <Button
-                        size="sm"
-                        className="cosmic"
-                        onClick={() => {
-                          if (comment.trim()) {
-                            handleCreateComment(post.id, comment);
-                            setComment("");
-                          }
-                        }}
-                        disabled={!comment.trim()}
+                        type="submit"
+                        disabled={!commentText.trim() || isSubmittingComment}
+                        className="bg-blue-500 hover:bg-blue-600"
                       >
-                        <Send className="w-4 h-4" />
+                        <Send className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
+                  </form>
 
-                  {/* Comments list */}
+                  {/* Comments List */}
                   <div className="space-y-3">
-                    {post.comments?.slice(0, 3).map((comment: Comment) => (
-                      <div
-                        key={comment.id}
-                        className="flex items-start space-x-3"
-                      >
+                    {post.comments?.map((comment: Comment) => (
+                      <div key={comment.id} className="flex gap-3">
                         <Avatar className="w-8 h-8">
-                          <AvatarImage src={comment.user?.profileurl} />
-                          <AvatarFallback className="bg-cosmic-600 text-white text-xs">
-                            {getInitials(comment.user?.name || "U")}
+                          <AvatarFallback className="bg-blue-500 text-xs">
+                            {getInitials(comment.author?.name || "U")}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="bg-white/5 rounded-lg p-3">
-                            <p className="text-white font-medium text-sm">
-                              {comment.user?.name}
+                            <p className="text-sm font-medium text-white">
+                              {comment.author?.name || "Unknown User"}
                             </p>
-                            <p className="text-space-300 text-sm mt-1">
+                            <p className="text-sm text-white/80 mt-1">
                               {comment.body}
                             </p>
+                            <p className="text-xs text-white/60 mt-1">
+                              {formatDate(comment.createdAt)}
+                            </p>
                           </div>
-                          <p className="text-space-500 text-xs mt-1">
-                            {formatDate(comment.createdAt)}
-                          </p>
                         </div>
                       </div>
                     ))}
@@ -291,280 +245,129 @@ const DashboardPage = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </motion.div>
     );
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Sidebar */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* User Profile Card */}
-          <Card className="glass-card border-white/20">
-            <CardContent className="p-6">
-              <div className="text-center">
-                <Avatar className="w-20 h-20 mx-auto mb-4">
-                  <AvatarImage src={user?.profileurl} />
-                  <AvatarFallback className="bg-cosmic-600 text-white text-xl">
-                    {getInitials(user?.name || "U")}
-                  </AvatarFallback>
-                </Avatar>
-                <h3 className="text-white font-semibold text-lg">
-                  {user?.name}
-                </h3>
-                <p className="text-space-400 text-sm">{user?.email}</p>
-
-                <div className="grid grid-cols-3 gap-4 mt-6">
-                  <div className="text-center">
-                    <div className="text-white font-semibold">1.2K</div>
-                    <div className="text-space-400 text-xs">Posts</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-white font-semibold">5.8K</div>
-                    <div className="text-space-400 text-xs">Connections</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-white font-semibold">12</div>
-                    <div className="text-space-400 text-xs">Networks</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card className="glass-card border-white/20">
-            <CardHeader>
-              <h3 className="text-white font-semibold">Quick Actions</h3>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                className="w-full justify-start cosmic"
-                onClick={() => setShowCreatePostModal(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Post
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start glass-card text-white border-white/20"
-              >
-                <ImageIcon className="w-4 h-4 mr-2" />
-                Share Photo
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start glass-card text-white border-white/20"
-              >
-                <Video className="w-4 h-4 mr-2" />
-                Share Video
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Trending Topics */}
-          <Card className="glass-card border-white/20">
-            <CardHeader>
-              <h3 className="text-white font-semibold flex items-center">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Trending
-              </h3>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                "#TechInnovation",
-                "#CosmicConnections",
-                "#FutureOfWork",
-                "#DigitalCommunity",
-              ].map((topic, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-space-300 text-sm">{topic}</span>
-                  <span className="text-cosmic-400 text-xs">
-                    {Math.floor(Math.random() * 1000)} posts
-                  </span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Feed */}
-        <div className="lg:col-span-6">
-          {/* Create Post */}
-          <Card className="glass-card border-white/20 mb-6">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={user?.profileurl} />
-                  <AvatarFallback className="bg-cosmic-600 text-white">
-                    {getInitials(user?.name || "U")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Button
-                    onClick={() => setShowCreatePostModal(true)}
-                    className="w-full justify-start bg-white/10 border-white/20 text-white hover:bg-white/20 h-12"
-                  >
-                    <span className="text-space-400">What's on your mind?</span>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Posts Feed */}
-          <div className="space-y-6">
-            {isLoading ? (
-              <div className="space-y-6">
-                {[...Array(3)].map((_, i) => (
-                  <Card key={i} className="glass-card border-white/20">
-                    <CardContent className="p-6">
-                      <div className="animate-pulse space-y-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-white/20 rounded-full"></div>
-                          <div className="space-y-2">
-                            <div className="w-24 h-4 bg-white/20 rounded"></div>
-                            <div className="w-16 h-3 bg-white/20 rounded"></div>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="w-full h-4 bg-white/20 rounded"></div>
-                          <div className="w-3/4 h-4 bg-white/20 rounded"></div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : Array.isArray(posts) ? (
-              posts.map((post) => <PostCard key={post.id} post={post} />)
-            ) : null}
+    <div className="mx-auto grid max-w-7xl gap-6 p-6 lg:grid-cols-[1fr_320px]">
+      {/* Feed */}
+      <div className="space-y-6">
+        {/* Post Composer */}
+        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+          <div className="flex gap-3">
+            <Avatar>
+              <AvatarImage src={user?.profileurl} />
+              <AvatarFallback className="bg-blue-500">
+                {getInitials(user?.name || "U")}
+              </AvatarFallback>
+            </Avatar>
+            <Button
+              className="flex-1 justify-start text-left text-white/40 hover:bg-white/5"
+              onClick={() => setShowCreatePostModal(true)}
+            >
+              What's on your mind?
+            </Button>
           </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Network Suggestions */}
-          <Card className="glass-card border-white/20">
-            <CardHeader>
-              <h3 className="text-white font-semibold flex items-center">
-                <Globe className="w-4 h-4 mr-2" />
-                Suggested Networks
-              </h3>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                {
-                  name: "Tech Innovators",
-                  members: "12.5K",
-                  description: "Latest in technology",
-                },
-                {
-                  name: "Creative Minds",
-                  members: "8.9K",
-                  description: "Art and design community",
-                },
-                {
-                  name: "Startup Founders",
-                  members: "5.2K",
-                  description: "Entrepreneurship network",
-                },
-              ].map((network, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-white font-medium text-sm">
-                      {network.name}
-                    </h4>
-                    <p className="text-space-400 text-xs">
-                      {network.description}
-                    </p>
-                    <p className="text-space-500 text-xs">
-                      {network.members} members
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="glass-card text-white border-white/20"
-                  >
-                    Join
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Connection Suggestions */}
-          <Card className="glass-card border-white/20">
-            <CardHeader>
-              <h3 className="text-white font-semibold flex items-center">
-                <Users className="w-4 h-4 mr-2" />
-                People You May Know
-              </h3>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {suggestedUsers.map((person) => (
-                <div key={person.id} className="flex items-center space-x-3">
-                  <Avatar className="w-10 h-10">
-                    <AvatarFallback className="bg-cosmic-600 text-white text-sm">
-                      {getInitials(person.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <h4 className="text-white font-medium text-sm">
-                      {person.name}
-                    </h4>
-                    <p className="text-space-400 text-xs">{person.email}</p>
-                    <p className="text-space-500 text-xs">
-                      {person.contact || "No contact info"}
-                    </p>
-                  </div>
-                  <Button size="sm" className="cosmic">
-                    Connect
-                  </Button>
-                </div>
-              ))}
-              {suggestedUsers.length === 0 && (
-                <div className="text-center py-4">
-                  <p className="text-space-400 text-sm">
-                    No suggestions available
-                  </p>
-                  <Button
-                    size="sm"
-                    className="cosmic mt-2"
-                    onClick={() => setShowFindPeopleModal(true)}
-                  >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Find People
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="glass-card border-white/20">
-            <CardHeader>
-              <h3 className="text-white font-semibold">Recent Activity</h3>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                "Alex liked your post",
-                "Sarah commented on your photo",
-                "Mike shared your update",
-                "Emma joined your network",
-              ].map((activity, index) => (
-                <div key={index} className="text-space-300 text-sm">
-                  {activity}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+        {/* Posts Feed */}
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="text-white/60">Loading posts...</div>
+          </div>
+        ) : (
+          posts.map((post) => <PostCard key={post.id} post={post} />)
+        )}
       </div>
+
+      {/* Right Sidebar */}
+      <aside className="space-y-6">
+        {/* Suggested Networks */}
+        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+          <div className="mb-4 flex items-center gap-2">
+            <Globe className="h-5 w-5 text-white/60" />
+            <h2 className="font-semibold text-white">Suggested Networks</h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                name: "Tech Innovators",
+                description: "Latest in technology",
+                members: "12.5K",
+              },
+              {
+                name: "Creative Minds",
+                description: "Art and design community",
+                members: "8.9K",
+              },
+              {
+                name: "Startup Founders",
+                description: "Entrepreneurship network",
+                members: "6.2K",
+              },
+            ].map((network) => (
+              <div
+                key={network.name}
+                className="flex items-start justify-between gap-3"
+              >
+                <div className="flex-1">
+                  <h3 className="font-medium text-white">{network.name}</h3>
+                  <p className="text-sm text-white/60">{network.description}</p>
+                  <p className="text-xs text-white/40">
+                    {network.members} members
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/10 bg-transparent text-white hover:bg-white/10"
+                >
+                  Join
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* People You May Know */}
+        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+          <div className="mb-4 flex items-center gap-2">
+            <Users className="h-5 w-5 text-white/60" />
+            <h2 className="font-semibold text-white">People You May Know</h2>
+          </div>
+          <div className="flex flex-col items-center py-8 text-center">
+            <p className="text-sm text-white/60">No suggestions available</p>
+            <Button
+              size="sm"
+              className="mt-4 gap-2 bg-blue-500 hover:bg-blue-600"
+              onClick={() => setShowFindPeopleModal(true)}
+            >
+              <UserPlus className="h-4 w-4" />
+              Find People
+            </Button>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+          <h2 className="mb-4 font-semibold text-white">Recent Activity</h2>
+          <div className="space-y-3">
+            {[
+              "Alex liked your post",
+              "Sarah commented on your photo",
+              "Mike shared your update",
+              "Emma joined your network",
+            ].map((activity, i) => (
+              <div key={i} className="text-sm text-white/80">
+                {activity}
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
 
       {/* Create Post Modal */}
       <CreatePostModal

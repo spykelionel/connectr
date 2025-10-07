@@ -1,17 +1,27 @@
 import CreateNetworkModal from "@/components/networks/CreateNetworkModal";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { getInitials } from "@/lib/utils";
 import { useGetNetworksQuery } from "@/services/api";
 import { motion } from "framer-motion";
-import { Filter, Plus, Search, Users } from "lucide-react";
+import { Globe, Plus, Search, Sparkles, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
 
+const categories = [
+  "All Networks",
+  "Technology",
+  "Creative",
+  "Business",
+  "Science",
+  "Entertainment",
+  "Sports",
+  "Education",
+];
+
 const NetworksPage = () => {
+  const [selectedCategory, setSelectedCategory] = useState("All Networks");
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+
   const {
     data: networks = [],
     isLoading,
@@ -19,124 +29,160 @@ const NetworksPage = () => {
     refetch,
   } = useGetNetworksQuery();
 
-  const filteredNetworks = networks.filter(
-    (network) =>
-      network.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      network.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredNetworks = networks.filter((network) => {
+    const matchesCategory =
+      selectedCategory === "All Networks" ||
+      network.category === selectedCategory;
+    const matchesSearch = network.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+    <div className="min-h-screen">
+      {/* Header */}
+      <div className="border-b border-white/10 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60">
+        <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold cosmic-text">Networks</h1>
-              <p className="text-space-300 mt-2">
+              <h1 className="text-3xl font-semibold text-white mb-2">
+                Networks
+              </h1>
+              <p className="text-white/60">
                 Discover and join communities that match your interests
               </p>
             </div>
-            <Button className="cosmic" onClick={() => setShowCreateModal(true)}>
-              <Plus className="w-4 h-4 mr-2" />
+            <Button
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              onClick={() => setShowCreateModal(true)}
+            >
+              <Plus className="h-4 w-4" />
               Create Network
             </Button>
           </div>
-        </motion.div>
+        </div>
+      </div>
 
-        {/* Search and Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
-          <Card className="glass-card border-white/20">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-space-400" />
-                  <Input
-                    placeholder="Search networks..."
-                    className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-space-400"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  className="glass-card text-white border-white/20"
-                >
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Networks Grid */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="text-space-300">Loading networks...</div>
-          </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <div className="text-red-400">Error loading networks</div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredNetworks.map((network, index) => (
-              <motion.div
-                key={network.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+      <div className="flex">
+        {/* Sidebar Categories */}
+        <aside className="w-64 border-r border-white/10 bg-black/50 min-h-screen p-6">
+          <div className="space-y-1">
+            <h3 className="text-sm font-medium text-white/60 mb-3 px-3">
+              Categories
+            </h3>
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                  selectedCategory === category
+                    ? "bg-blue-500 text-white"
+                    : "text-white hover:bg-white/10"
+                }`}
               >
-                <Card className="glass-card border-white/20 hover-lift h-full">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="w-12 h-12">
-                        <AvatarFallback className="bg-cosmic-600 text-white">
-                          {getInitials(network.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="text-white font-semibold">
-                          {network.name}
-                        </h3>
-                        <p className="text-space-400 text-sm">
-                          Created{" "}
-                          {new Date(network.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
+                {category}
+              </button>
+            ))}
+          </div>
+        </aside>
 
-                  <CardContent className="space-y-4">
-                    <p className="text-space-300 text-sm">
+        {/* Main Content */}
+        <main className="flex-1 p-8">
+          {/* Search Bar */}
+          <div className="mb-8">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Input
+                type="text"
+                placeholder="Search networks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              />
+            </div>
+          </div>
+
+          {/* Networks Grid */}
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="text-white/60">Loading networks...</div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="text-red-400">Error loading networks</div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredNetworks.map((network, index) => (
+                <motion.div
+                  key={network.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="group bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all duration-300"
+                >
+                  {/* Network Image */}
+                  <div className="relative h-40 overflow-hidden bg-white/10">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Globe className="h-16 w-16 text-white/40" />
+                    </div>
+                    {network.trending && (
+                      <div className="absolute top-3 right-3 bg-blue-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                        <TrendingUp className="h-3 w-3" />
+                        Trending
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Network Info */}
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-white group-hover:text-blue-400 transition-colors">
+                        {network.name}
+                      </h3>
+                      <Globe className="h-4 w-4 text-white/60 flex-shrink-0" />
+                    </div>
+
+                    <p className="text-sm text-white/60 mb-4 line-clamp-2">
                       {network.description || "No description available"}
                     </p>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 text-space-400 text-sm">
-                        <Users className="w-4 h-4" />
+                      <div className="flex items-center gap-1.5 text-sm text-white/60">
+                        <Users className="h-4 w-4" />
                         <span>{network.memberships?.length || 0} members</span>
                       </div>
-                      <Button size="sm" className="cosmic">
+
+                      <Button className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
                         Join
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        )}
+
+                    <div className="mt-3 pt-3 border-t border-white/10">
+                      <span className="text-xs text-white/60">
+                        Created{" "}
+                        {new Date(network.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {filteredNetworks.length === 0 && !isLoading && (
+            <div className="text-center py-12">
+              <Sparkles className="h-12 w-12 text-white/60 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-white mb-2">
+                No networks found
+              </h3>
+              <p className="text-sm text-white/60">
+                Try adjusting your search or category filter
+              </p>
+            </div>
+          )}
+        </main>
       </div>
 
       <CreateNetworkModal
