@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useUpload } from "@/hooks/useUpload";
 import { RequestInterceptor } from "@/lib/api/interceptor";
 import { useCreatePostMutation, useGetUserNetworksQuery } from "@/services/api";
+import { useUploadSimpleMutation } from "@/services/uploadApi";
 import { RootState } from "@/store";
 
 const createPostSchema = z.object({
@@ -44,21 +44,13 @@ const CreatePostModal = ({
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useSelector((state: RootState) => state.auth);
   const [createPost] = useCreatePostMutation();
+  const [uploadSimple] = useUploadSimpleMutation();
   const { data: userNetworks = [] } = useGetUserNetworksQuery(user?.id || "");
-
-  const { upload, progress } = useUpload("post", {
-    onSuccess: (url) => {
-      setUploadedUrls((prev) => [...prev, url]);
-    },
-    onError: (error) => {
-      console.error("Upload error:", error);
-    },
-    showToast: false, // We'll handle toast manually
-  });
 
   const {
     register,
@@ -93,12 +85,22 @@ const CreatePostModal = ({
     const urls: string[] = [];
 
     try {
-      for (const image of selectedImages) {
-        const url = await upload(image);
-        if (url) {
-          urls.push(url);
+      for (let i = 0; i < selectedImages.length; i++) {
+        const image = selectedImages[i];
+
+        // Calculate progress
+        const progressPercent = ((i + 1) / selectedImages.length) * 100;
+        setUploadProgress(progressPercent);
+
+        const result = await uploadSimple({
+          file: image,
+          path: "posts",
+        }).unwrap();
+
+        if (result.success && result.data?.secure_url) {
+          urls.push(result.data.secure_url);
+          setUploadedUrls((prev) => [...prev, result.data.secure_url]);
         } else {
-          // If any upload fails, throw an error to stop the process
           throw new Error(`Failed to upload image: ${image.name}`);
         }
       }
@@ -320,7 +322,7 @@ const CreatePostModal = ({
                       <div className="w-full bg-white/20 rounded-full h-2">
                         <div
                           className="bg-cosmic-400 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${progress}%` }}
+                          style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
                     </div>

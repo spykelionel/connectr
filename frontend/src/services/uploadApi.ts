@@ -28,6 +28,13 @@ export interface UploadResponseDto {
   tags?: string[];
 }
 
+export interface UploadSimpleResponseDto {
+  statusCode: number;
+  message: string;
+  success: boolean;
+  data: UploadResponseDto;
+}
+
 export interface BulkUploadResponseDto {
   successful: UploadResponseDto[];
   failed: Array<{
@@ -51,16 +58,16 @@ export const uploadApi = createApi({
   endpoints: (builder) => ({
     // Simple upload - Main upload method for all file types
     uploadSimple: builder.mutation<
-      UploadResponseDto,
+      UploadSimpleResponseDto,
       { file: File; path?: string }
     >({
       query: ({ file, path }) => {
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", file, file.name);
         if (path) {
           formData.append("path", path);
         }
-        console.log(formData);
+        console.log(file.type);
 
         return {
           url: "upload/simple",
