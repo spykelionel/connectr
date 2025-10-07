@@ -1,10 +1,10 @@
-# SocialSphere Frontend
+# 🎪 CircusPrime Frontend
 
-A modern, cosmic-themed social networking application built with React, TypeScript, and Tailwind CSS.
+A vibrant, energetic, and playful social networking application built with React, TypeScript, and Tailwind CSS. Every interaction feels like part of an amazing circus performance!
 
 ## Features
 
-- 🌌 **Cosmic Theme**: Beautiful dark theme with cosmic gradients and glassmorphism effects
+- 🎭 **Circus-Themed Design**: Bold colors, playful animations, and engaging interactions
 - 🔐 **Authentication**: Login and registration with form validation
 - 👥 **Social Features**: Posts, comments, connections, and networks
 - 📱 **Responsive Design**: Mobile-first design with smooth animations
@@ -15,7 +15,7 @@ A modern, cosmic-themed social networking application built with React, TypeScri
 - **React 19** - Latest React with concurrent features
 - **TypeScript** - Type-safe development
 - **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
+- **Tailwind CSS** - Utility-first CSS framework with circus theme
 - **Redux Toolkit** - State management
 - **React Router** - Client-side routing
 - **Framer Motion** - Animation library
@@ -74,13 +74,13 @@ Make sure you have:
 - npm or yarn
 - Backend API running (see backend README)
 
-## Cosmic Theme
+## Circus Theme
 
-The application features a custom cosmic theme with:
+The application features a custom circus theme with:
 
-- Dark color palette with cosmic gradients
+- Bold color palette with vibrant gradients
+- Playful animations and transitions
 - Glassmorphism effects
-- Smooth animations and transitions
 - Custom Tailwind utilities
 
 ## Contributing
@@ -93,4 +93,3 @@ The application features a custom cosmic theme with:
 ## License
 
 MIT License - see LICENSE file for details
-
