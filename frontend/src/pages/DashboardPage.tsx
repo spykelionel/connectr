@@ -1,3 +1,4 @@
+import FindPeopleModal from "@/components/connections/FindPeopleModal";
 import CreatePostModal from "@/components/posts/CreatePostModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,14 +22,16 @@ import {
   Send,
   Share2,
   TrendingUp,
+  UserPlus,
   Users,
   Video,
 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
   useCreateCommentMutation,
   useGetPostsQuery,
+  useGetUsersQuery,
   useReactToPostMutation,
 } from "../services/api";
 import { RootState } from "../store";
@@ -36,10 +39,34 @@ import { RootState } from "../store";
 const DashboardPage = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
+  const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
 
   const { data: posts = [], isLoading } = useGetPostsQuery();
+  const {
+    data: allUsers,
+    isLoading: isLoadingUsers,
+    error: usersError,
+  } = useGetUsersQuery();
   const [reactToPost] = useReactToPostMutation();
   const [createComment] = useCreateCommentMutation();
+
+  // Get suggested users (excluding current user and limit to 3)
+  const suggestedUsers = React.useMemo(() => {
+    if (!allUsers || !Array.isArray(allUsers)) {
+      return [];
+    }
+    return allUsers.filter((u) => u.id !== user?.id).slice(0, 3);
+  }, [allUsers, user?.id]);
+
+  // Debug logging
+  console.log(
+    "allUsers:",
+    allUsers,
+    "isArray:",
+    Array.isArray(allUsers),
+    "usersError:",
+    usersError
+  );
 
   const handleReactToPost = async (
     postId: string,
@@ -271,7 +298,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Sidebar */}
         <div className="lg:col-span-3 space-y-6">
@@ -479,12 +506,8 @@ const DashboardPage = () => {
               </h3>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[
-                { name: "Alex Johnson", role: "Software Engineer", mutual: 12 },
-                { name: "Sarah Chen", role: "UX Designer", mutual: 8 },
-                { name: "Mike Rodriguez", role: "Product Manager", mutual: 15 },
-              ].map((person, index) => (
-                <div key={index} className="flex items-center space-x-3">
+              {suggestedUsers.map((person) => (
+                <div key={person.id} className="flex items-center space-x-3">
                   <Avatar className="w-10 h-10">
                     <AvatarFallback className="bg-cosmic-600 text-white text-sm">
                       {getInitials(person.name)}
@@ -494,9 +517,9 @@ const DashboardPage = () => {
                     <h4 className="text-white font-medium text-sm">
                       {person.name}
                     </h4>
-                    <p className="text-space-400 text-xs">{person.role}</p>
+                    <p className="text-space-400 text-xs">{person.email}</p>
                     <p className="text-space-500 text-xs">
-                      {person.mutual} mutual connections
+                      {person.contact || "No contact info"}
                     </p>
                   </div>
                   <Button size="sm" className="cosmic">
@@ -504,6 +527,21 @@ const DashboardPage = () => {
                   </Button>
                 </div>
               ))}
+              {suggestedUsers.length === 0 && (
+                <div className="text-center py-4">
+                  <p className="text-space-400 text-sm">
+                    No suggestions available
+                  </p>
+                  <Button
+                    size="sm"
+                    className="cosmic mt-2"
+                    onClick={() => setShowFindPeopleModal(true)}
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Find People
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -534,6 +572,15 @@ const DashboardPage = () => {
         onClose={() => setShowCreatePostModal(false)}
         onSuccess={() => {
           // Optionally refresh posts or show success message
+        }}
+      />
+
+      <FindPeopleModal
+        isOpen={showFindPeopleModal}
+        onClose={() => setShowFindPeopleModal(false)}
+        onSuccess={() => {
+          // Refresh data
+          window.location.reload();
         }}
       />
     </div>

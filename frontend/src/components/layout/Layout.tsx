@@ -1,3 +1,4 @@
+import FindPeopleModal from "@/components/connections/FindPeopleModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +24,11 @@ import {
   Settings,
   Sun,
   User,
+  UserPlus,
   Users,
   X,
 } from "lucide-react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
@@ -36,6 +39,17 @@ const Layout = () => {
   const { sidebarOpen, mobileMenuOpen, theme } = useSelector(
     (state: RootState) => state.ui
   );
+  const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+
+  // Update desktop state on resize
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const navigation = [
     { name: "Dashboard", href: "/app/dashboard", icon: Home },
@@ -86,11 +100,11 @@ const Layout = () => {
       <motion.aside
         initial={false}
         animate={{
-          x: mobileMenuOpen ? 0 : -320,
+          x: isDesktop ? 0 : mobileMenuOpen ? 0 : -320,
           width: sidebarOpen ? 280 : 80,
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="fixed left-0 top-0 z-50 h-full bg-space-900/95 backdrop-blur-md border-r border-white/10 lg:translate-x-0"
+        className="fixed left-0 top-0 z-50 h-full bg-space-900/95 backdrop-blur-md border-r border-white/10"
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
@@ -247,9 +261,18 @@ const Layout = () => {
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
               </Button>
 
+              <Button
+                variant="outline"
+                className="glass-card text-white border-white/20"
+                onClick={() => setShowFindPeopleModal(true)}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Find People
+              </Button>
+
               <Button className="cosmic">
                 <Plus className="w-4 h-4 mr-2" />
-                Create
+                Create Post
               </Button>
             </div>
           </div>
@@ -260,6 +283,15 @@ const Layout = () => {
           <Outlet />
         </main>
       </div>
+
+      <FindPeopleModal
+        isOpen={showFindPeopleModal}
+        onClose={() => setShowFindPeopleModal(false)}
+        onSuccess={() => {
+          // Refresh data
+          window.location.reload();
+        }}
+      />
     </div>
   );
 };

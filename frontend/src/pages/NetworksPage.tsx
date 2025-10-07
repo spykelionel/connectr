@@ -1,46 +1,29 @@
+import CreateNetworkModal from "@/components/networks/CreateNetworkModal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getInitials } from "@/lib/utils";
+import { useGetNetworksQuery } from "@/services/api";
 import { motion } from "framer-motion";
 import { Filter, Plus, Search, Users } from "lucide-react";
+import { useState } from "react";
 
 const NetworksPage = () => {
-  const networks = [
-    {
-      id: "1",
-      name: "Tech Innovators",
-      description: "Latest in technology and innovation",
-      memberCount: 12500,
-      avatar: "",
-      category: "Technology",
-    },
-    {
-      id: "2",
-      name: "Creative Minds",
-      description: "Art, design, and creative community",
-      memberCount: 8900,
-      avatar: "",
-      category: "Arts",
-    },
-    {
-      id: "3",
-      name: "Startup Founders",
-      description: "Entrepreneurship and business network",
-      memberCount: 5200,
-      avatar: "",
-      category: "Business",
-    },
-    {
-      id: "4",
-      name: "Digital Nomads",
-      description: "Remote work and travel community",
-      memberCount: 7800,
-      avatar: "",
-      category: "Lifestyle",
-    },
-  ];
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const {
+    data: networks = [],
+    isLoading,
+    error,
+    refetch,
+  } = useGetNetworksQuery();
+
+  const filteredNetworks = networks.filter(
+    (network) =>
+      network.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      network.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen p-6">
@@ -58,7 +41,7 @@ const NetworksPage = () => {
                 Discover and join communities that match your interests
               </p>
             </div>
-            <Button className="cosmic">
+            <Button className="cosmic" onClick={() => setShowCreateModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Create Network
             </Button>
@@ -80,6 +63,8 @@ const NetworksPage = () => {
                   <Input
                     placeholder="Search networks..."
                     className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-space-400"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <Button
@@ -95,55 +80,70 @@ const NetworksPage = () => {
         </motion.div>
 
         {/* Networks Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {networks.map((network, index) => (
-            <motion.div
-              key={network.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="glass-card border-white/20 hover-lift h-full">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-12 h-12">
-                      <AvatarFallback className="bg-cosmic-600 text-white">
-                        {getInitials(network.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold">
-                        {network.name}
-                      </h3>
-                      <p className="text-space-400 text-sm">
-                        {network.category}
-                      </p>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="text-space-300">Loading networks...</div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <div className="text-red-400">Error loading networks</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredNetworks.map((network, index) => (
+              <motion.div
+                key={network.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="glass-card border-white/20 hover-lift h-full">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="w-12 h-12">
+                        <AvatarFallback className="bg-cosmic-600 text-white">
+                          {getInitials(network.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="text-white font-semibold">
+                          {network.name}
+                        </h3>
+                        <p className="text-space-400 text-sm">
+                          Created{" "}
+                          {new Date(network.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
 
-                <CardContent className="space-y-4">
-                  <p className="text-space-300 text-sm">
-                    {network.description}
-                  </p>
+                  <CardContent className="space-y-4">
+                    <p className="text-space-300 text-sm">
+                      {network.description || "No description available"}
+                    </p>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 text-space-400 text-sm">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {network.memberCount.toLocaleString()} members
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 text-space-400 text-sm">
+                        <Users className="w-4 h-4" />
+                        <span>{network.memberships?.length || 0} members</span>
+                      </div>
+                      <Button size="sm" className="cosmic">
+                        Join
+                      </Button>
                     </div>
-                    <Button size="sm" className="cosmic">
-                      Join
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
+
+      <CreateNetworkModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 };

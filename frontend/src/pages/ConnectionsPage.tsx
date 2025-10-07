@@ -1,46 +1,82 @@
+import FindPeopleModal from "@/components/connections/FindPeopleModal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getInitials } from "@/lib/utils";
+import {
+  useCreateConnectionMutation,
+  useGetConnectionsQuery,
+  useGetFriendsQuery,
+  useGetPendingConnectionsQuery,
+  useUpdateConnectionStatusMutation,
+} from "@/services/api";
 import { motion } from "framer-motion";
 import { Filter, Search, UserCheck, UserPlus, UserX } from "lucide-react";
+import { useState } from "react";
 
 const ConnectionsPage = () => {
-  const connections = [
-    {
-      id: "1",
-      name: "Alex Johnson",
-      role: "Software Engineer",
-      status: "accepted",
-      mutualConnections: 12,
-      avatar: "",
-    },
-    {
-      id: "2",
-      name: "Sarah Chen",
-      role: "UX Designer",
-      status: "pending",
-      mutualConnections: 8,
-      avatar: "",
-    },
-    {
-      id: "3",
-      name: "Mike Rodriguez",
-      role: "Product Manager",
-      status: "accepted",
-      mutualConnections: 15,
-      avatar: "",
-    },
-    {
-      id: "4",
-      name: "Emma Wilson",
-      role: "Marketing Director",
-      status: "accepted",
-      mutualConnections: 6,
-      avatar: "",
-    },
-  ];
+  const [activeTab, setActiveTab] = useState<"all" | "pending" | "friends">(
+    "all"
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFindPeopleModal, setShowFindPeopleModal] = useState(false);
+
+  const { data: allConnections = [], isLoading: isLoadingAll } =
+    useGetConnectionsQuery();
+  const { data: friends = [], isLoading: isLoadingFriends } =
+    useGetFriendsQuery();
+  const { data: pendingConnections = [], isLoading: isLoadingPending } =
+    useGetPendingConnectionsQuery();
+
+  const [updateConnectionStatus] = useUpdateConnectionStatusMutation();
+  const [createConnection] = useCreateConnectionMutation();
+
+  const getCurrentConnections = () => {
+    switch (activeTab) {
+      case "friends":
+        return friends;
+      case "pending":
+        return pendingConnections;
+      default:
+        return allConnections;
+    }
+  };
+
+  const currentConnections = getCurrentConnections();
+  const isLoading = isLoadingAll || isLoadingFriends || isLoadingPending;
+
+  const filteredConnections = currentConnections.filter(
+    (connection) =>
+      connection.friend?.name
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      connection.friend?.email
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase())
+  );
+
+  const handleAcceptConnection = async (connectionId: string) => {
+    try {
+      await updateConnectionStatus({
+        id: connectionId,
+        status: "accepted",
+      }).unwrap();
+    } catch (error) {
+      console.error("Failed to accept connection:", error);
+    }
+  };
+
+  const handleRejectConnection = async (connectionId: string) => {
+    try {
+      await updateConnectionStatus({
+        id: connectionId,
+        status: "blocked",
+      }).unwrap();
+    } catch (error) {
+      console.error("Failed to reject connection:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen p-6">
@@ -58,7 +94,10 @@ const ConnectionsPage = () => {
                 Manage your professional network and discover new connections
               </p>
             </div>
-            <Button className="cosmic">
+            <Button
+              className="cosmic"
+              onClick={() => setShowFindPeopleModal(true)}
+            >
               <UserPlus className="w-4 h-4 mr-2" />
               Find People
             </Button>
@@ -80,6 +119,8 @@ const ConnectionsPage = () => {
                   <Input
                     placeholder="Search connections..."
                     className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-space-400"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <Button
@@ -102,92 +143,131 @@ const ConnectionsPage = () => {
           className="mb-8"
         >
           <div className="flex space-x-1 bg-white/10 rounded-lg p-1">
-            {["All", "Pending", "Suggestions"].map((tab, index) => (
+            {[
+              { key: "all", label: "All" },
+              { key: "pending", label: "Pending" },
+              { key: "friends", label: "Friends" },
+            ].map((tab) => (
               <Button
-                key={tab}
-                variant={index === 0 ? "default" : "ghost"}
+                key={tab.key}
+                variant={activeTab === tab.key ? "default" : "ghost"}
                 className={`flex-1 ${
-                  index === 0
+                  activeTab === tab.key
                     ? "cosmic"
                     : "text-space-300 hover:text-white hover:bg-white/10"
                 }`}
+                onClick={() =>
+                  setActiveTab(tab.key as "all" | "pending" | "friends")
+                }
               >
-                {tab}
+                {tab.label}
               </Button>
             ))}
           </div>
         </motion.div>
 
         {/* Connections Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {connections.map((connection, index) => (
-            <motion.div
-              key={connection.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="glass-card border-white/20 hover-lift h-full">
-                <CardContent className="p-6">
-                  <div className="text-center">
-                    <Avatar className="w-20 h-20 mx-auto mb-4">
-                      <AvatarFallback className="bg-cosmic-600 text-white text-xl">
-                        {getInitials(connection.name)}
-                      </AvatarFallback>
-                    </Avatar>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="text-space-300">Loading connections...</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredConnections.map((connection, index) => (
+              <motion.div
+                key={connection.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="glass-card border-white/20 hover-lift h-full">
+                  <CardContent className="p-6">
+                    <div className="text-center">
+                      <Avatar className="w-20 h-20 mx-auto mb-4">
+                        <AvatarFallback className="bg-cosmic-600 text-white text-xl">
+                          {getInitials(connection.friend?.name || "U")}
+                        </AvatarFallback>
+                      </Avatar>
 
-                    <h3 className="text-white font-semibold text-lg">
-                      {connection.name}
-                    </h3>
-                    <p className="text-space-400 text-sm mb-2">
-                      {connection.role}
-                    </p>
-                    <p className="text-space-500 text-xs mb-4">
-                      {connection.mutualConnections} mutual connections
-                    </p>
+                      <h3 className="text-white font-semibold text-lg">
+                        {connection.friend?.name || "Unknown User"}
+                      </h3>
+                      <p className="text-space-400 text-sm mb-2">
+                        {connection.friend?.email}
+                      </p>
+                      <p className="text-space-500 text-xs mb-4">
+                        Status: {connection.status}
+                      </p>
 
-                    <div className="flex space-x-2">
-                      {connection.status === "accepted" ? (
-                        <>
+                      <div className="flex space-x-2">
+                        {connection.status === "accepted" ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 glass-card text-white border-white/20"
+                            >
+                              <UserCheck className="w-4 h-4 mr-2" />
+                              Connected
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="glass-card text-white border-white/20"
+                            >
+                              Message
+                            </Button>
+                          </>
+                        ) : connection.status === "pending" ? (
+                          <>
+                            <Button
+                              size="sm"
+                              className="flex-1 cosmic"
+                              onClick={() =>
+                                handleAcceptConnection(connection.id)
+                              }
+                            >
+                              <UserCheck className="w-4 h-4 mr-2" />
+                              Accept
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="glass-card text-white border-white/20"
+                              onClick={() =>
+                                handleRejectConnection(connection.id)
+                              }
+                            >
+                              <UserX className="w-4 h-4" />
+                            </Button>
+                          </>
+                        ) : (
                           <Button
                             size="sm"
                             variant="outline"
                             className="flex-1 glass-card text-white border-white/20"
                           >
-                            <UserCheck className="w-4 h-4 mr-2" />
-                            Connected
+                            Blocked
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="glass-card text-white border-white/20"
-                          >
-                            Message
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button size="sm" className="flex-1 cosmic">
-                            <UserCheck className="w-4 h-4 mr-2" />
-                            Accept
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="glass-card text-white border-white/20"
-                          >
-                            <UserX className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
+
+      <FindPeopleModal
+        isOpen={showFindPeopleModal}
+        onClose={() => setShowFindPeopleModal(false)}
+        onSuccess={() => {
+          // Refresh connections data
+          window.location.reload(); // Simple refresh for now
+        }}
+      />
     </div>
   );
 };

@@ -15,6 +15,11 @@ export const userApi = createApi({
       query: (id) => `user/${id}`,
       providesTags: (_result, _error, id) => [{ type: "User", id }],
     }),
+    searchUsers: builder.query<User[], string>({
+      query: (searchQuery) =>
+        `user/search?q=${encodeURIComponent(searchQuery)}`,
+      providesTags: ["User"],
+    }),
     updateUser: builder.mutation<User, { id: string; data: Partial<User> }>({
       query: ({ id, data }) => ({
         url: `auth/update-user/${id}`,
@@ -26,5 +31,9 @@ export const userApi = createApi({
   }),
 });
 
-export const { useGetUsersQuery, useGetUserQuery, useUpdateUserMutation } =
-  userApi;
+export const {
+  useGetUsersQuery,
+  useGetUserQuery,
+  useSearchUsersQuery,
+  useUpdateUserMutation,
+} = userApi;
