@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configureCloudinary } from './core/config/cloudinary.config';
+import { ResponseTemplateInterceptor } from './core/interceptors/response-template/response-template.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ConnectionModule } from './modules/connection/connection.module';
@@ -32,6 +33,7 @@ import { PrismaModule } from './prisma/prisma.module';
         configureCloudinary(configService),
       inject: [ConfigService],
     },
+    ResponseTemplateInterceptor,
   ],
 })
 export class AppModule {}

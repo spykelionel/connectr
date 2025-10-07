@@ -2,6 +2,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ResponseTemplateInterceptor } from './core/interceptors/response-template/response-template.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -9,6 +10,7 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log'],
   });
 
+  app.useGlobalInterceptors(app.get(ResponseTemplateInterceptor));
   // version and prefix
   app.setGlobalPrefix('api');
   app.enableVersioning({
@@ -23,7 +25,7 @@ async function bootstrap() {
     .setContact('Connectr Team', 'https://connectr.com', 'support@connectr.com')
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addServer('http://localhost:8000', 'Development server')
-    .addServer('https://api.connectr.com', 'Production server')
+    .addServer('https://socialsphere-tqxr.onrender.com', 'Production server')
     .addBearerAuth(
       {
         type: 'http',
