@@ -19,6 +19,19 @@ export const userApi = createApi({
       query: (searchQuery) =>
         `user/search?q=${encodeURIComponent(searchQuery)}`,
       providesTags: ["User"],
+      transformResponse: (response: any) => {
+        // Handle different response formats
+        if (Array.isArray(response)) {
+          return response;
+        }
+        if (response && response.success && Array.isArray(response.data)) {
+          return response.data;
+        }
+        if (response && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      },
     }),
     updateUser: builder.mutation<User, { id: string; data: Partial<User> }>({
       query: ({ id, data }) => ({

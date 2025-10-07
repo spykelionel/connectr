@@ -33,6 +33,9 @@ const FindPeopleModal = ({
     skip: searchQuery.length < 2, // Only search when user types at least 2 characters
   });
 
+  // Ensure users is always an array
+  const safeUsers = Array.isArray(users) ? users : [];
+
   const handleConnect = async (userId: string) => {
     try {
       await createConnection({ friendId: userId }).unwrap();
@@ -109,13 +112,13 @@ const FindPeopleModal = ({
                   <div className="text-center py-12">
                     <div className="text-red-400">Error searching users</div>
                   </div>
-                ) : users.length === 0 ? (
+                ) : safeUsers.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="text-space-300">No users found</div>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {users.map((user, index) => (
+                    {safeUsers.map((user, index) => (
                       <motion.div
                         key={user.id}
                         initial={{ opacity: 0, y: 10 }}
