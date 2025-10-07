@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQueryWithReauth } from "../util/util.service";
 import { LocalStorage } from "../../lib/util/localStorage";
+import { baseQueryWithReauth } from "../util/util.service";
 import {
   AuthResponse,
   IAuthUser,
@@ -86,7 +86,7 @@ const authSlice = createSlice({
         state.user = null;
         state.sessionId = null;
         state.sessionExpireAt = null;
-        
+
         // Clear localStorage
         LocalStorage.remove("access_token");
         LocalStorage.remove("refresh_token");

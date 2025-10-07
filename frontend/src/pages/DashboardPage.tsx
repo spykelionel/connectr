@@ -26,7 +26,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useGetPostsQuery, useReactToPostMutation } from "../services/api";
+import {
+  useCreateCommentMutation,
+  useGetPostsQuery,
+  useReactToPostMutation,
+} from "../services/api";
 import { RootState } from "../store";
 
 const DashboardPage = () => {
@@ -35,6 +39,7 @@ const DashboardPage = () => {
 
   const { data: posts = [], isLoading } = useGetPostsQuery();
   const [reactToPost] = useReactToPostMutation();
+  const [createComment] = useCreateCommentMutation();
 
   const handleReactToPost = async (
     postId: string,
@@ -44,6 +49,18 @@ const DashboardPage = () => {
       await reactToPost({ postId, reactionType }).unwrap();
     } catch (error) {
       console.error("Failed to react to post:", error);
+    }
+  };
+
+  const handleCreateComment = async (postId: string, commentText: string) => {
+    try {
+      await createComment({
+        postId,
+        body: commentText,
+        userId: user?.id || "",
+      }).unwrap();
+    } catch (error) {
+      console.error("Failed to create comment:", error);
     }
   };
 
@@ -203,8 +220,10 @@ const DashboardPage = () => {
                         size="sm"
                         className="cosmic"
                         onClick={() => {
-                          // TODO: Implement comment creation
-                          setComment("");
+                          if (comment.trim()) {
+                            handleCreateComment(post.id, comment);
+                            setComment("");
+                          }
                         }}
                         disabled={!comment.trim()}
                       >

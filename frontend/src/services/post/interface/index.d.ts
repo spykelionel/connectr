@@ -53,8 +53,11 @@ export interface CreatePostRequest {
   networkId?: string;
 }
 
-export interface ReactToPostRequest {
-  reactionType: "upvote" | "downvote";
+export interface CreateCommentRequest {
+  body: string;
+  postId: string;
+  userId: string;
+  attachment?: string;
 }
 
 // Import User and Network types (these will be defined in their respective services)

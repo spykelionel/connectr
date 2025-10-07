@@ -1,6 +1,11 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../util/util.service";
-import { CreatePostRequest, Post } from "./interface";
+import {
+  Comment,
+  CreateCommentRequest,
+  CreatePostRequest,
+  Post,
+} from "./interface";
 
 export const postApi = createApi({
   reducerPath: "postApi",
@@ -78,6 +83,25 @@ export const postApi = createApi({
         "Post",
       ],
     }),
+    createComment: builder.mutation<Comment, CreateCommentRequest>({
+      query: (commentData) => ({
+        url: "comment",
+        method: "POST",
+        body: commentData,
+      }),
+      invalidatesTags: (_result, _error, { postId }) => [
+        { type: "Post", id: postId },
+        "Post",
+        "Comment",
+      ],
+    }),
+    deleteComment: builder.mutation<{ message: string }, string>({
+      query: (id) => ({
+        url: `comment/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Comment", "Post"],
+    }),
   }),
 });
 
@@ -90,4 +114,6 @@ export const {
   useUpdatePostMutation,
   useDeletePostMutation,
   useReactToPostMutation,
+  useCreateCommentMutation,
+  useDeleteCommentMutation,
 } = postApi;
