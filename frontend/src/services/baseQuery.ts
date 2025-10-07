@@ -3,10 +3,10 @@ import {
   FetchArgs,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
-import { logout } from "../features/auth/authSlice";
 import { BASE_URL } from "../lib/config";
 import { LocalStorage } from "../lib/util/localStorage";
 import { RootState } from "../store";
+import { logOutUser } from "./auth/auth.service";
 import { preparedHeaders } from "./headers";
 
 const baseQuery = fetchBaseQuery({
@@ -26,7 +26,7 @@ export async function baseQueryWithReauth(
 
     if (!refreshToken) {
       console.error("No refresh token available, logging out user.");
-      api.dispatch(logout());
+      api.dispatch(logOutUser());
       return result;
     }
 
@@ -45,7 +45,7 @@ export async function baseQueryWithReauth(
 
     if (refreshResponse.error) {
       console.error("Refresh token request failed", refreshResponse.error);
-      api.dispatch(logout());
+      api.dispatch(logOutUser());
       throw refreshResponse.error;
     }
 
@@ -65,7 +65,7 @@ export async function baseQueryWithReauth(
       // Retry the original request
       result = await baseQuery(args, api, extraOptions);
     } else {
-      api.dispatch(logout());
+      api.dispatch(logOutUser());
     }
   }
 

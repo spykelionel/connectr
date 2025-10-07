@@ -81,6 +81,7 @@ const authSlice = createSlice({
     },
     logOutUser: (state) => {
       try {
+        console.log("Auth service: Logging out user");
         state.access_token = null;
         state.refresh_token = null;
         state.user = null;
@@ -91,6 +92,7 @@ const authSlice = createSlice({
         LocalStorage.remove("access_token");
         LocalStorage.remove("refresh_token");
         LocalStorage.remove("user");
+        console.log("Auth service: User session cleared from localStorage");
       } catch (error) {
         console.error("Error removing user session", error);
       }

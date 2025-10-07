@@ -2,9 +2,9 @@ import FindPeopleModal from "@/components/connections/FindPeopleModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { logout } from "@/features/auth/authSlice";
 import { setTheme, toggleMobileMenu } from "@/features/ui/uiSlice";
 import { getInitials } from "@/lib/utils";
+import { logOutUser } from "@/services/api";
 import { RootState } from "@/store";
 import { APP_NAME } from "@/utils/constants";
 import {
@@ -28,10 +28,11 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const Layout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const { sidebarOpen, mobileMenuOpen, theme } = useSelector(
@@ -58,7 +59,10 @@ const Layout = () => {
   ];
 
   const handleLogout = () => {
-    dispatch(logout());
+    console.log("Logging out user...");
+    dispatch(logOutUser());
+    console.log("User logged out, navigating to login page");
+    navigate("/auth/login");
   };
 
   const toggleTheme = () => {
