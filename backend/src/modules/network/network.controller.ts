@@ -244,4 +244,50 @@ export class NetworkController {
   ) {
     return this.networkService.removeMember(id, removeMemberDto, req.user.id);
   }
+
+  @Post(':id/join')
+  @ApiOperation({ summary: 'Join a network' })
+  @ApiParam({ name: 'id', description: 'Network ID', example: 'network123' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully joined network.',
+    schema: {
+      example: {
+        message: 'Successfully joined network',
+        networkId: 'network123',
+        userId: 'user456',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request - Already a member.' })
+  @ApiResponse({ status: 404, description: 'Network not found.' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  joinNetwork(@Param('id') id: string, @Request() req: any) {
+    console.log('JWT Payload:', req.user); // Debug log
+    return this.networkService.joinNetwork(id, req.user.id);
+  }
+
+  @Post(':id/leave')
+  @ApiOperation({ summary: 'Leave a network' })
+  @ApiParam({ name: 'id', description: 'Network ID', example: 'network123' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully left network.',
+    schema: {
+      example: {
+        message: 'Successfully left network',
+        networkId: 'network123',
+        userId: 'user456',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request - Not a member.' })
+  @ApiResponse({ status: 404, description: 'Network not found.' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  leaveNetwork(@Param('id') id: string, @Request() req: any) {
+    console.log('JWT Payload:', req.user); // Debug log
+    return this.networkService.leaveNetwork(id, req.user.id);
+  }
 }

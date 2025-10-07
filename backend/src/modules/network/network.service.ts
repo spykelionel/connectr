@@ -540,4 +540,78 @@ export class NetworkService {
       },
     });
   }
+
+  async joinNetwork(networkId: string, userId: string) {
+    console.log('Join Network - NetworkId:', networkId, 'UserId:', userId); // Debug log
+
+    // Verify network exists
+    const network = await this.prisma.network.findUnique({
+      where: { id: networkId },
+    });
+
+    if (!network) {
+      throw new NotFoundException('Network not found');
+    }
+
+    // Verify user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      console.log('User not found in database:', userId); // Debug log
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if user is already a member
+    const isAlreadyMember = await this.isUserMember(networkId, userId);
+    if (isAlreadyMember) {
+      throw new BadRequestException('User is already a member of this network');
+    }
+
+    // Add user as member
+    await this.prisma.networkMembership.create({
+      data: {
+        networkId: networkId,
+        userId: userId,
+      },
+    });
+
+    return {
+      message: 'Successfully joined network',
+      networkId: networkId,
+      userId: userId,
+    };
+  }
+
+  async leaveNetwork(networkId: string, userId: string) {
+    // Verify network exists
+    const network = await this.prisma.network.findUnique({
+      where: { id: networkId },
+    });
+
+    if (!network) {
+      throw new NotFoundException('Network not found');
+    }
+
+    // Check if user is a member
+    const isMember = await this.isUserMember(networkId, userId);
+    if (!isMember) {
+      throw new BadRequestException('User is not a member of this network');
+    }
+
+    // Remove membership
+    await this.prisma.networkMembership.deleteMany({
+      where: {
+        networkId: networkId,
+        userId: userId,
+      },
+    });
+
+    return {
+      message: 'Successfully left network',
+      networkId: networkId,
+      userId: userId,
+    };
+  }
 }

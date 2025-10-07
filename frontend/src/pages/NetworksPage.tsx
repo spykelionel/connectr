@@ -1,7 +1,11 @@
 import CreateNetworkModal from "@/components/networks/CreateNetworkModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useGetNetworksQuery } from "@/services/api";
+import {
+  useGetNetworksQuery,
+  useJoinNetworkMutation,
+  useLeaveNetworkMutation,
+} from "@/services/api";
 import { RootState } from "@/store";
 import { motion } from "framer-motion";
 import {
@@ -41,6 +45,9 @@ const NetworksPage = () => {
     refetch,
   } = useGetNetworksQuery();
 
+  const [joinNetwork, { isLoading: isJoining }] = useJoinNetworkMutation();
+  const [leaveNetwork, { isLoading: isLeaving }] = useLeaveNetworkMutation();
+
   // Helper function to check if user is admin/creator of network
   const isUserAdmin = (network: any) => {
     return network.administrations?.some(
@@ -53,6 +60,30 @@ const NetworksPage = () => {
     return network.memberships?.some(
       (member: any) => member.userId === user?.id
     );
+  };
+
+  const handleJoinNetwork = async (networkId: string) => {
+    try {
+      await joinNetwork(networkId).unwrap();
+      refetch(); // Refresh the networks list
+      // You could add a toast notification here
+      console.log("Successfully joined network");
+    } catch (error) {
+      console.error("Failed to join network:", error);
+      // You could add an error toast notification here
+    }
+  };
+
+  const handleLeaveNetwork = async (networkId: string) => {
+    try {
+      await leaveNetwork(networkId).unwrap();
+      refetch(); // Refresh the networks list
+      // You could add a toast notification here
+      console.log("Successfully left network");
+    } catch (error) {
+      console.error("Failed to leave network:", error);
+      // You could add an error toast notification here
+    }
   };
 
   const filteredNetworks = networks.filter((network) => {
@@ -183,15 +214,21 @@ const NetworksPage = () => {
                       ) : isUserMember(network) ? (
                         <Button
                           variant="outline"
-                          className="px-4 py-1.5 border-green-500/50 text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-1"
+                          onClick={() => handleLeaveNetwork(network.id)}
+                          disabled={isLeaving}
+                          className="px-4 py-1.5 border-green-500/50 text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-1 disabled:opacity-50"
                         >
                           <UserCheck className="h-3 w-3" />
-                          Joined
+                          {isLeaving ? "Leaving..." : "Joined"}
                         </Button>
                       ) : (
-                        <Button className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-1">
+                        <Button
+                          onClick={() => handleJoinNetwork(network.id)}
+                          disabled={isJoining}
+                          className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-1 disabled:opacity-50"
+                        >
                           <UserPlus className="h-3 w-3" />
-                          Join
+                          {isJoining ? "Joining..." : "Join"}
                         </Button>
                       )}
                     </div>

@@ -83,6 +83,26 @@ export const networkApi = createApi({
         { type: "Network", id: networkId },
       ],
     }),
+    joinNetwork: builder.mutation<{ message: string }, string>({
+      query: (networkId) => ({
+        url: `network/${networkId}/join`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, networkId) => [
+        { type: "Network", id: networkId },
+        "Network",
+      ],
+    }),
+    leaveNetwork: builder.mutation<{ message: string }, string>({
+      query: (networkId) => ({
+        url: `network/${networkId}/leave`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, networkId) => [
+        { type: "Network", id: networkId },
+        "Network",
+      ],
+    }),
   }),
 });
 
@@ -95,4 +115,6 @@ export const {
   useDeleteNetworkMutation,
   useAddNetworkMemberMutation,
   useRemoveNetworkMemberMutation,
+  useJoinNetworkMutation,
+  useLeaveNetworkMutation,
 } = networkApi;
