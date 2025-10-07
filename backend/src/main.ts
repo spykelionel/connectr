@@ -38,37 +38,11 @@ async function bootstrap() {
   });
   // setup swagger docs
   const swagConfig = new DocumentBuilder()
-    .setTitle('Connectr API')
-    .setDescription('Connectr - Social Network Platform API Documentation')
+    .setTitle('CircusPrime API')
+    .setDescription('CircusPrime - Social Network Platform API Documentation')
     .setVersion('1.0')
-    .setContact('Connectr Team', 'https://connectr.com', 'support@connectr.com')
-    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-    .addServer('http://localhost:8000', 'Development server')
-    .addServer('https://socialsphere-tqxr.onrender.com', 'Production server')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        name: 'Authorization',
-        bearerFormat: 'JWT',
-        in: 'header',
-      },
-      'JWT',
-    )
-    .addTag('Authentication', 'User authentication and authorization endpoints')
-    .addTag('Users', 'User management endpoints')
-    .addTag('Posts', 'Post creation, management, and interaction endpoints')
-    .addTag(
-      'Comments',
-      'Comment creation, management, and interaction endpoints',
-    )
-    .addTag('Networks', 'Network creation, management, and member endpoints')
-    .addTag('Roles', 'Role management endpoints')
-    .addTag(
-      'Connections',
-      'Friend connection and relationship management endpoints',
-    )
-    .addTag('File Upload', 'Cloudinary file upload and management endpoints')
+    .addBearerAuth()
+
     .build();
   SwaggerModule.setup(
     '/swagger',

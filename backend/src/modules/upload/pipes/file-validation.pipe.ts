@@ -43,6 +43,11 @@ export class FileValidationPipe implements PipeTransform {
   }
 
   private validateFile(file: Express.Multer.File) {
+    // Check if file exists
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
     // Check file size
     if (file.size > this.options.maxSize) {
       throw new BadRequestException(
@@ -51,6 +56,12 @@ export class FileValidationPipe implements PipeTransform {
     }
 
     // Check MIME type
+    if (!file.mimetype) {
+      throw new BadRequestException(
+        'File type could not be determined. Please ensure the file is valid.',
+      );
+    }
+
     if (!this.options.allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException(
         `File type ${file.mimetype} is not allowed. Allowed types: ${this.options.allowedMimeTypes.join(', ')}`,

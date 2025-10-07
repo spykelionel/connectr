@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -70,11 +71,47 @@ export class UploadController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  @UsePipes(new FileValidationPipe())
   async uploadSimpleFile(
     @UploadedFile() file: Express.Multer.File,
     @Body() uploadDto: SimpleUploadDto,
   ) {
+    // Debug logging
+    console.log('Upload file received:', {
+      filename: file?.originalname,
+      mimetype: file?.mimetype,
+      size: file?.size,
+      fieldname: file?.fieldname,
+    });
+
+    // Manual validation
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    if (!file.mimetype) {
+      throw new BadRequestException(
+        'File type could not be determined. Please ensure the file is valid.',
+      );
+    }
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+    ];
+    if (!allowedTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        `File type ${file.mimetype} is not allowed. Allowed types: ${allowedTypes.join(', ')}`,
+      );
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      // 50MB
+      throw new BadRequestException('File size exceeds 50MB limit');
+    }
+
     // Direct upload without DTO validation
     const uploadOptions = {
       resource_type: 'auto',
