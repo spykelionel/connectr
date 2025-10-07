@@ -82,14 +82,14 @@ export const useUpload = (
         const path = uploadOptions.folder || `${service}s`;
         result = await uploadSimple({ file, path }).unwrap();
 
-        if (!result || !result.secure_url) {
+        if (!result || !result.data?.secure_url) {
           throw new Error("Upload failed: No URL returned from server");
         }
 
         clearInterval(progressInterval);
         setProgress(100);
 
-        const url = result.secure_url;
+        const url = result.data.secure_url;
         onSuccess?.(url);
 
         if (showToast) {

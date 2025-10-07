@@ -5,7 +5,6 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "../lib/config";
 import { LocalStorage } from "../lib/util/localStorage";
-import { RootState } from "../store";
 import { logOutUser } from "./auth/auth.service";
 import { preparedHeaders } from "./headers";
 
@@ -51,7 +50,6 @@ export async function baseQueryWithReauth(
 
     if (refreshResponse.data) {
       const data = refreshResponse.data as any;
-      const { user } = (api.getState() as RootState).auth;
 
       const { access_token, refresh_token } = data?.data as {
         access_token: string;

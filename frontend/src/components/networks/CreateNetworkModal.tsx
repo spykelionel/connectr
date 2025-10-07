@@ -48,7 +48,14 @@ const CreateNetworkModal = ({
 
     try {
       await RequestInterceptor.handleRequest(
-        () => createNetwork(data).unwrap(),
+        async () => {
+          const network = await createNetwork(data).unwrap();
+          return {
+            message: "Network created successfully",
+            success: true,
+            data: network,
+          };
+        },
         {
           onSuccess: () => {
             reset();

@@ -14,7 +14,7 @@ import { preparedHeaders } from "../headers";
 export const utilApi = createApi({
   reducerPath: "utilApi",
   baseQuery: baseQueryWithReauth,
-  endpoints: (builder) => ({}),
+  endpoints: () => ({}),
 });
 
 export const {} = utilApi;
