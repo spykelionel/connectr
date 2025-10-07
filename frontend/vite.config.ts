@@ -29,11 +29,7 @@ export default defineConfig({
           vendor: ["react", "react-dom"],
           router: ["react-router-dom"],
           redux: ["@reduxjs/toolkit", "react-redux"],
-          ui: [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-tabs",
-          ],
+          ui: ["@radix-ui/react-slot", "@radix-ui/react-avatar"],
           animations: ["framer-motion"],
           icons: ["lucide-react"],
         },
